@@ -1,0 +1,1774 @@
+@import "@fontsource/fraunces/400.css";
+@import "@fontsource/fraunces/500.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/fraunces/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+/* ============================================================================
+   World Explorer — design tokens (specs/world-explorer.md "Aesthetic tokens")
+   A premium atlas/expedition journal: linen map under lamplight, gold routes,
+   boarding-pass mission cards, a passport that fills with region-styled stamps.
+   ========================================================================== */
+:root {
+  /* palette */
+  --ink: #0f1419; /* bg */
+  --water: #0b1016;
+  --land: #22303c;
+  --land-visited: #2c3e4d;
+  --land-highlight: #3ba99f;
+  --gold: #d4a843; /* route gold */
+  --gold-soft: #e7c876;
+  --paper: #f4efe6; /* boarding-pass + passport pages */
+  --paper-edge: #e3dccd;
+  --paper-ink: #2a2620; /* text on paper */
+  --paper-meta: #6f6657;
+  --text: #e6e3dc; /* text on ink */
+  --text-dim: #9aa3a6;
+
+  /* region ink (stamps) */
+  --stamp-americas: #b5642f;
+  --stamp-europe-africa: #2f7d72;
+  --stamp-asia-oceania: #3b4e8f;
+
+  /* warmth feedback */
+  --warm: #d98a3d;
+  --cold: #4f86c2;
+
+  /* one radius, used everywhere (shared contract §3: 6–10px) */
+  --r: 8px;
+  --r-lg: 12px;
+
+  /* type */
+  --display: "Fraunces", Georgia, serif;
+  --body: "Inter", system-ui, sans-serif;
+
+  /* text scale (shared contract §3) */
+  --fs-body: 18px;
+  --fs-meta: 14px;
+  --fs-h2: 26px;
+  --fs-h1: 34px;
+
+  /* spacing scale */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+
+  --shadow-card: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* Large-text accessibility mode (Settings; early readers + far-sighted adults).
+   Affects prose/cards/log, NOT the map. */
+:root[data-large="true"] {
+  --fs-body: 21px;
+  --fs-meta: 16px;
+  --fs-h2: 30px;
+  --fs-h1: 40px;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: var(--body);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* lamplight atmosphere on the whole app shell */
+.app-shell {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #16202a 0%, var(--ink) 55%, #0a0e12 100%);
+}
+/* faint warm lamp glow top-center */
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 40% at 50% 0%, rgba(212, 168, 67, 0.08), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+h1 {
+  font-size: var(--fs-h1);
+}
+h2 {
+  font-size: var(--fs-h2);
+}
+
+button {
+  font-family: var(--body);
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-soft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── shared atoms ─────────────────────────────────────────────────────────── */
+.btn {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  color: var(--ink);
+  background: var(--gold);
+  border: none;
+  border-radius: var(--r);
+  padding: 12px 20px;
+  min-height: 48px;
+  transition: transform 120ms ease-out, filter 120ms ease-out, box-shadow 120ms ease-out;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(230, 227, 220, 0.22);
+  box-shadow: none;
+}
+.btn--ghost:active {
+  background: rgba(230, 227, 220, 0.06);
+}
+.btn--quiet {
+  background: rgba(230, 227, 220, 0.08);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--r);
+  border: 1px solid rgba(230, 227, 220, 0.18);
+  background: rgba(230, 227, 220, 0.06);
+  color: var(--text);
+  transition: background 120ms ease-out, transform 120ms ease-out;
+}
+.icon-btn:active {
+  transform: translateY(1px);
+  background: rgba(230, 227, 220, 0.12);
+}
+
+.meta {
+  font-size: var(--fs-meta);
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+.eyebrow {
+  font-size: var(--fs-meta);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* SpeakButton (read-aloud) — Volume2 icon, prominent on mission cards */
+.speak {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--r);
+  border: 1.5px solid rgba(42, 38, 32, 0.18);
+  background: rgba(42, 38, 32, 0.05);
+  color: var(--paper-ink);
+  transition: background 120ms ease-out, transform 120ms ease-out;
+}
+.speak:active {
+  transform: translateY(1px);
+}
+.speak[data-on="true"] {
+  background: rgba(181, 100, 47, 0.14);
+  border-color: rgba(181, 100, 47, 0.4);
+}
+.speak--lg {
+  min-width: 48px;
+  min-height: 48px;
+}
+/* On dark surfaces */
+.speak--dark {
+  color: var(--text);
+  border-color: rgba(230, 227, 220, 0.2);
+  background: rgba(230, 227, 220, 0.06);
+}
+
+/* ============================================================================
+   PROFILE PICKER
+   ========================================================================== */
+.profiles {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--s6);
+  padding: var(--s5);
+  text-align: center;
+}
+.profiles__title {
+  font-size: var(--fs-h1);
+}
+.profiles__sub {
+  color: var(--text-dim);
+  margin-top: calc(-1 * var(--s4));
+}
+.discs {
+  display: flex;
+  gap: var(--s5);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.disc {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 2px solid rgba(230, 227, 220, 0.18);
+  background: var(--disc-tint, #333);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 44px;
+  transition: transform 140ms ease-out, box-shadow 140ms ease-out;
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.12), var(--shadow-card);
+}
+.disc:active {
+  transform: scale(0.96);
+}
+.disc__wrap {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+}
+.disc__name {
+  font-family: var(--body);
+  font-size: var(--fs-meta);
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+/* compass-rose mark used on the picker + passport cover */
+.compass {
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+/* ============================================================================
+   ATLAS  (map + region tabs + mission tray)
+   ========================================================================== */
+.atlas {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+/* Fix 5: quiet opening moment — map fades up with a slow scale settle (~600ms);
+   region tabs and tray slide in staggered (~150ms). Premium, not flashy.
+   prefers-reduced-motion collapses everything to an instant appear. */
+.atlas.is-intro .mapwrap {
+  animation: atlas-map-in 600ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  transform-origin: 50% 45%;
+}
+.atlas.is-intro .tabs {
+  animation: atlas-rise-in 380ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: 150ms;
+}
+.atlas.is-intro .tray__header,
+.atlas.is-intro .tray__list,
+.atlas.is-intro .tray__locked {
+  animation: atlas-rise-in 380ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: 300ms;
+}
+@keyframes atlas-map-in {
+  from { opacity: 0; transform: scale(1.035); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes atlas-rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+:root[data-reduced="true"] .atlas.is-intro .mapwrap,
+:root[data-reduced="true"] .atlas.is-intro .tabs,
+:root[data-reduced="true"] .atlas.is-intro .tray__header,
+:root[data-reduced="true"] .atlas.is-intro .tray__list,
+:root[data-reduced="true"] .atlas.is-intro .tray__locked {
+  animation: none;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid rgba(230, 227, 220, 0.08);
+}
+.topbar__title {
+  font-size: var(--fs-h2);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.topbar__spacer {
+  flex: 1;
+}
+.topbar__actions {
+  display: flex;
+  gap: var(--s2);
+}
+
+.atlas__body {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  min-height: 0;
+}
+@media (max-width: 920px) {
+  .atlas__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+}
+
+/* map column */
+.mapwrap {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+/* linen texture + soft vignette over the map (atmosphere mandate) */
+.mapwrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 100% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.45) 100%);
+  z-index: 2;
+}
+.mapwrap__linen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+  mix-blend-mode: soft-light;
+  /* faint linen grain: SVG feTurbulence fractalNoise at ~0.9 baseFrequency, very low alpha */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeBlend in='SourceGraphic' mode='overlay'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23grain)' opacity='0.08'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.015) 3px,
+      rgba(255, 255, 255, 0.015) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.015) 3px,
+      rgba(255, 255, 255, 0.015) 4px
+    ),
+    /* soft radial vignette darkening map edges */
+    radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0, 0, 0, 0.38) 100%);
+}
+
+.worldmap {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Fix 1: explorer label — a compass-card plate resting in the map's lower-left
+   corner, in the premium-atlas register (paper, gold eyebrow, optional stamp). */
+.explore-card {
+  position: absolute;
+  left: var(--s4);
+  bottom: var(--s4);
+  z-index: 4;
+  max-width: min(320px, 70%);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: linear-gradient(180deg, #f7f2e8, #efe7d6);
+  color: var(--paper-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+  border: 1px solid var(--paper-edge);
+  animation: explore-card-in 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@keyframes explore-card-in {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+:root[data-reduced="true"] .explore-card { animation: none; }
+.explore-card__close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 6px;
+  background: rgba(42, 38, 32, 0.06);
+  color: var(--paper-meta);
+}
+.explore-card__body {
+  display: grid;
+  gap: 2px;
+  padding-right: var(--s4);
+}
+.explore-card__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold);
+}
+.explore-card__eyebrow .compass { color: var(--gold); }
+.explore-card__name {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--paper-ink);
+}
+.explore-card__capital {
+  font-size: var(--fs-meta);
+  color: var(--paper-meta);
+}
+.explore-card__signature {
+  font-size: var(--fs-meta);
+  color: var(--paper-ink);
+  font-style: italic;
+}
+.explore-card__stamp {
+  flex: 0 0 auto;
+  align-self: center;
+}
+.map-group {
+  transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform-box: fill-box;
+}
+:root[data-reduced="true"] .map-group {
+  transition-duration: 0ms;
+}
+
+/* country path states */
+.country {
+  fill: var(--land);
+  stroke: #0c1217;
+  stroke-width: 0.4;
+  transition: fill 140ms ease-out, filter 140ms ease-out;
+}
+/* Fix 4: invisible generous hit area for interactive countries. A wide
+   non-scaling stroke fattens thin slivers (Chile) into a tappable band; the
+   transparent fill catches taps inside the body. Never alters the visible map. */
+.country-hit {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 10px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: all;
+  cursor: pointer;
+}
+.country.is-visited {
+  fill: var(--land-visited);
+}
+@media (hover: hover) {
+  .country.is-interactive:hover {
+    filter: brightness(1.18);
+  }
+}
+.country.is-target-hint {
+  /* used during reveal: pulses */
+  fill: var(--land-highlight);
+}
+.country.is-correct {
+  fill: var(--land-highlight);
+  animation: country-pop 180ms ease-out;
+}
+.country.is-wrong {
+  animation: country-shake 220ms ease-out;
+}
+.country.is-bounce {
+  animation: country-bounce 200ms ease-out;
+}
+.country.is-route-on {
+  fill: var(--land-highlight);
+}
+/* Fix 1: the country selected on the Atlas explorer map — a soft gold glow + lift. */
+.country.is-explored {
+  fill: var(--gold);
+  filter: drop-shadow(0 0 3px rgba(212, 168, 67, 0.55));
+}
+@keyframes country-pop {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.5); }
+  100% { filter: brightness(1.12); }
+}
+@keyframes country-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+@keyframes country-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes target-pulse {
+  0%, 100% { transform: scale(1); filter: brightness(1.1); }
+  50% { transform: scale(1.04); filter: brightness(1.6); }
+}
+.country.is-revealing {
+  fill: var(--land-highlight);
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: target-pulse 600ms ease-in-out 2;
+}
+:root[data-reduced="true"] .country.is-wrong,
+:root[data-reduced="true"] .country.is-bounce,
+:root[data-reduced="true"] .country.is-correct,
+:root[data-reduced="true"] .country.is-revealing {
+  animation: none;
+}
+
+/* route pins + gold dotted polyline */
+.route-pin {
+  fill: var(--gold);
+  stroke: #6b531c;
+  stroke-width: 0.5;
+  animation: pin-drop 200ms ease-out;
+}
+@keyframes pin-drop {
+  0% { transform: translateY(-6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.route-line {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 1 5;
+  filter: drop-shadow(0 0 2px rgba(212, 168, 67, 0.5));
+}
+
+/* warmth vignette breaths over the map edge */
+.warmth-breath {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+}
+.warmth-breath.is-warm {
+  animation: breath-warm 360ms ease-out;
+  background: radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(217, 138, 61, 0.4) 100%);
+}
+.warmth-breath.is-cold {
+  animation: breath-cold 360ms ease-out;
+  background: radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(79, 134, 194, 0.4) 100%);
+}
+@keyframes breath-warm {
+  0% { opacity: 0; }
+  45% { opacity: 0.18; }
+  100% { opacity: 0; }
+}
+@keyframes breath-cold {
+  0% { opacity: 0; }
+  45% { opacity: 0.18; }
+  100% { opacity: 0; }
+}
+:root[data-reduced="true"] .warmth-breath { animation: none; opacity: 0; }
+
+/* ── region tabs + mission tray ───────────────────────────────────────────── */
+.tray {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  border-left: 1px solid rgba(230, 227, 220, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+}
+@media (max-width: 920px) {
+  .tray {
+    border-left: none;
+    border-top: 1px solid rgba(230, 227, 220, 0.08);
+    max-height: 46vh;
+  }
+}
+.tabs {
+  display: flex;
+  gap: var(--s1);
+  padding: var(--s3) var(--s3) 0;
+}
+.tab {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: var(--fs-meta);
+  padding: 10px 6px;
+  border-radius: var(--r) var(--r) 0 0;
+  border-bottom: 2px solid transparent;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-height: 48px;
+  transition: color 120ms ease-out, background 120ms ease-out;
+}
+/* Fix 4: a freshly unlocked tab pulses its gold underline + a single glint sweep. */
+.tab.is-unlocking {
+  animation: tab-unlock 1200ms ease-out both;
+}
+@keyframes tab-unlock {
+  0% { background: rgba(212, 168, 67, 0); }
+  30% { background: rgba(212, 168, 67, 0.22); border-bottom-color: var(--gold); }
+  100% { background: rgba(212, 168, 67, 0.08); border-bottom-color: var(--gold); }
+}
+.tab__glint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.65) 50%, transparent 60%);
+  transform: translateX(-130%);
+  animation: tab-glint 700ms ease-out 120ms both;
+}
+@keyframes tab-glint {
+  to { transform: translateX(130%); }
+}
+:root[data-reduced="true"] .tab.is-unlocking {
+  animation: none;
+  background: rgba(212, 168, 67, 0.12);
+  border-bottom-color: var(--gold);
+}
+:root[data-reduced="true"] .tab__glint { display: none; }
+
+/* Fix 4: the region-unlock plate — a brief banner over the atlas, ≤1.2s, skippable. */
+.region-unlock {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 11, 14, 0.42);
+  animation: fade-in 160ms ease-out both;
+}
+.region-unlock__plate {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: var(--s4) var(--s6);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, #f7f2e8, #efe7d6);
+  box-shadow: 0 0 0 2px var(--gold), var(--shadow-lift);
+  color: var(--paper-ink);
+  animation: region-unlock-pop 360ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes region-unlock-pop {
+  0% { transform: scale(0.86) translateY(8px); opacity: 0; }
+  60% { transform: scale(1.03) translateY(0); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.region-unlock__eyebrow {
+  font-size: var(--fs-meta);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--gold-deep, #9a7320);
+}
+.region-unlock__title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: 0.04em;
+}
+.region-unlock__glint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.7) 50%, transparent 62%);
+  transform: translateX(-130%);
+  animation: region-unlock-glint 760ms ease-out 120ms both;
+}
+@keyframes region-unlock-glint {
+  to { transform: translateX(130%); }
+}
+.region-unlock.is-reduced {
+  animation: fade-in 160ms ease-out both;
+}
+.region-unlock.is-reduced .region-unlock__plate {
+  animation: fade-in 160ms ease-out both;
+}
+.region-unlock.is-reduced .region-unlock__glint { display: none; }
+.tab.is-active {
+  color: var(--text);
+  background: rgba(212, 168, 67, 0.08);
+  border-bottom-color: var(--gold);
+}
+.tab.is-locked {
+  color: var(--text-dim);
+  opacity: 0.65;
+}
+.tab__lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.tray__header {
+  padding: var(--s3) var(--s4) var(--s2);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.tray__list {
+  overflow-y: auto;
+  padding: var(--s2) var(--s3) var(--s4);
+  display: grid;
+  gap: var(--s3);
+  -webkit-overflow-scrolling: touch;
+}
+.tray__locked {
+  padding: var(--s6) var(--s4);
+  text-align: center;
+  color: var(--text-dim);
+  display: grid;
+  gap: var(--s3);
+  justify-items: center;
+}
+
+/* ── boarding-pass mission card ───────────────────────────────────────────── */
+.pass {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: var(--s3);
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: var(--r);
+  padding: var(--s3);
+  text-align: left;
+  border: none;
+  box-shadow: var(--shadow-card);
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+.pass:active {
+  transform: translateY(1px);
+}
+.pass.is-selectable:hover {
+  box-shadow: var(--shadow-lift);
+}
+/* perforation stub line between stub and body */
+.pass__perf {
+  position: absolute;
+  left: 76px;
+  top: 8px;
+  bottom: 8px;
+  border-left: 2px dashed rgba(42, 38, 32, 0.25);
+}
+.pass__stub {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--stub-tint, var(--stamp-americas));
+}
+.pass__stub svg {
+  width: 38px;
+  height: 38px;
+}
+.pass__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.pass__type {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-meta);
+  font-weight: 700;
+}
+.pass__title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--paper-ink);
+}
+.pass__foot {
+  font-size: var(--fs-meta);
+  color: var(--paper-meta);
+}
+.pass__status {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding-right: var(--s2);
+  color: var(--paper-meta);
+}
+.pass.is-complete {
+  background: linear-gradient(180deg, #f7f3ec, #ece4d4);
+}
+.pass__star {
+  color: var(--gold);
+}
+.pass__stamped {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--stamp-americas);
+}
+
+/* ============================================================================
+   MISSION OVERLAY
+   ========================================================================== */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  /* Clamp the single implicit row to the overlay's own height. Without this the
+     row auto-sizes to content (map's intrinsic height) and .mission{height:100%}
+     resolves against the overgrown track, defeating the map letterbox and pushing
+     the warmth gauge below app-shell's overflow:hidden fold at 1280×800. */
+  grid-template-rows: minmax(0, 1fr);
+}
+.overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 11, 14, 0.55);
+  backdrop-filter: blur(1.5px);
+  animation: fade-in 180ms ease-out;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* mission layout: card on top of the live map */
+.mission {
+  position: relative;
+  z-index: 21;
+  height: 100%;
+  display: grid;
+  /* Map letterboxes into leftover height (SVG preserveAspectRatio meet); the card
+     row sizes to content. With auto 1fr the map row sized itself from the SVG's
+     intrinsic 960:500 ratio and pushed the card below the fold at 1280×800. */
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.mission__map {
+  position: relative;
+  min-height: 0;
+}
+.mission__card-wrap {
+  position: relative;
+  z-index: 22;
+  padding: var(--s4);
+  display: flex;
+  justify-content: center;
+}
+
+/* the boarding-pass / prompt card shown during a mission */
+.mcard {
+  width: 100%;
+  max-width: 560px;
+  /* Fix 6: constrain card height so warmth meter stays visible at 1024×768 / 1280×800.
+     The card-wrap row is auto-sized; limit the card itself so it never exceeds the
+     available space and the overflow scrolls internally. */
+  max-height: min(340px, 44vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  position: relative;
+}
+/* perforated top edge (boarding pass) */
+.mcard__perf-top {
+  height: 10px;
+  background:
+    radial-gradient(circle at 6px 0, transparent 5px, var(--paper) 5px) repeat-x;
+  background-size: 14px 10px;
+  background-position: 0 -5px;
+  border-bottom: 1px dashed rgba(42, 38, 32, 0.2);
+}
+.mcard__inner {
+  padding: var(--s4) var(--s5);
+  display: grid;
+  gap: var(--s3);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
+}
+/* Fix 2: find-mission card splits into a pinned head (prompt + warmth gauge +
+   feedback, always visible) and a scrolling extras region (picture hint, copy).
+   The gauge can never be pushed below the fold at 1024×768 or 1280×800. */
+.mcard__inner--find {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* scrolling moves to .mcard__scroll */
+  gap: var(--s2);
+}
+.mcard__pin {
+  flex: 0 0 auto;
+  display: grid;
+  gap: var(--s3);
+}
+.mcard__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: grid;
+  gap: var(--s3);
+  align-content: start;
+}
+.mcard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.mcard__route-no {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-meta);
+  font-weight: 700;
+}
+.mcard__prompt {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.25;
+  color: var(--paper-ink);
+}
+.mcard__sub {
+  font-size: var(--fs-meta);
+  color: var(--paper-meta);
+}
+.mcard__hint-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--stamp-americas);
+  flex: 0 0 auto;
+}
+.mcard__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+/* warmth meter chip (thermometer) */
+.warmth {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--fs-meta);
+  color: var(--paper-meta);
+}
+.warmth__track {
+  position: relative;
+  width: 120px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--cold), #cdbfa9 50%, var(--warm));
+  overflow: hidden;
+}
+.warmth__fill {
+  position: absolute;
+  top: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--paper-ink);
+  transform: translateX(-50%);
+  left: var(--heat, 50%);
+  transition: left 200ms ease-out;
+}
+.warmth__copy {
+  min-height: 1.2em;
+  font-weight: 600;
+  color: var(--paper-ink);
+}
+
+/* landmark silhouette card */
+.landmark-figure {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  padding: var(--s2) 0;
+}
+.landmark-figure svg {
+  width: 120px;
+  height: 120px;
+  color: var(--paper-ink);
+}
+
+/* route waypoint list */
+.waylist {
+  display: grid;
+  gap: var(--s1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wayitem {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(42, 38, 32, 0.04);
+  font-size: var(--fs-meta);
+}
+.wayitem.is-done {
+  background: rgba(212, 168, 67, 0.16);
+  color: var(--paper-ink);
+}
+.wayitem.is-next {
+  background: rgba(181, 100, 47, 0.12);
+  box-shadow: inset 0 0 0 1.5px rgba(181, 100, 47, 0.35);
+}
+.wayitem__no {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--paper-ink);
+  color: var(--paper);
+  font-size: 12px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.wayitem.is-done .wayitem__no {
+  background: var(--gold);
+  color: var(--paper-ink);
+}
+
+/* compare cards */
+.compare {
+  display: grid;
+  gap: var(--s4);
+}
+.compare__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s4);
+}
+.ccard {
+  position: relative;
+  border: none;
+  border-radius: var(--r);
+  padding: var(--s4);
+  background: #fbf8f1;
+  box-shadow: var(--shadow-card);
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  min-height: 150px;
+  transition: transform 320ms cubic-bezier(0.3, 0.7, 0.3, 1), box-shadow 200ms ease-out,
+    opacity 200ms ease-out;
+  transform-style: preserve-3d;
+  color: var(--paper-ink);
+}
+.ccard.is-flipped {
+  /* subtle Y flip cue; numbers swap in at midpoint via JS state */
+  animation: card-flip 320ms ease-out;
+}
+@keyframes card-flip {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0); }
+}
+:root[data-reduced="true"] .ccard.is-flipped { animation: none; }
+.ccard.is-winner {
+  box-shadow: 0 0 0 3px var(--gold), var(--shadow-lift);
+  transform: translateY(-6px);
+}
+.ccard.is-loser {
+  opacity: 0.7;
+}
+.ccard__shape-wrap {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.ccard__shape {
+  width: 84px;
+  height: 64px;
+  color: var(--land-highlight);
+}
+/* Fix 1 — shown only when a tiny country was floored off true scale. */
+.ccard__scale-note {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--paper-meta);
+  opacity: 0.8;
+  margin-top: 1px;
+}
+.ccard__name {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 19px;
+}
+.ccard__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--stamp-americas);
+  min-height: 1.2em;
+}
+.compare__reveal {
+  text-align: center;
+  font-size: var(--fs-body);
+  color: var(--paper-ink);
+  min-height: 1.5em;
+}
+.compare__reveal b {
+  color: var(--stamp-americas);
+}
+
+/* mission feedback line (reveal copy, route hint, etc.) */
+.mfeedback {
+  min-height: 1.4em;
+  font-size: var(--fs-body);
+  color: var(--paper-ink);
+  font-weight: 500;
+}
+.mfeedback--reveal {
+  background: rgba(59, 169, 159, 0.12);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+/* ============================================================================
+   STAMP SET-PIECE (the reward spine)
+   ========================================================================== */
+.stamp-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 11, 14, 0.72);
+  animation: fade-in 120ms ease-out;
+}
+.stamp-page {
+  position: relative;
+  width: min(440px, 86vw);
+  background:
+    linear-gradient(180deg, #f7f2e8, #efe7d6);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lift);
+  padding: var(--s6) var(--s5) var(--s5);
+  display: grid;
+  justify-items: center;
+  gap: var(--s4);
+  transform-origin: 50% 0;
+}
+.stamp-page.is-rocking {
+  animation: page-rock 360ms ease-out;
+}
+@keyframes page-rock {
+  0% { transform: rotate(0); }
+  30% { transform: rotate(2deg); }
+  60% { transform: rotate(-1deg); }
+  100% { transform: rotate(0); }
+}
+:root[data-reduced="true"] .stamp-page.is-rocking { animation: none; }
+
+.stamp-slot {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  display: grid;
+  place-items: center;
+}
+.stamp-impact-ring {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid rgba(181, 100, 47, 0.6);
+  animation: impact-ring 420ms ease-out forwards;
+  pointer-events: none;
+}
+@keyframes impact-ring {
+  0% { transform: scale(0.5); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.the-stamp {
+  width: 152px;
+  height: 152px;
+  transform-origin: center;
+}
+.the-stamp.is-dropping {
+  animation: stamp-drop 260ms cubic-bezier(0.5, 0, 0.2, 1.2) both;
+}
+@keyframes stamp-drop {
+  0% { transform: scale(1.4) rotate(-8deg); opacity: 0; }
+  70% { opacity: 0.9; }
+  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+}
+.the-stamp.is-final {
+  transform: scale(1) rotate(-3deg);
+}
+:root[data-reduced="true"] .the-stamp.is-dropping {
+  animation: fade-in 180ms ease-out both;
+  transform: scale(1) rotate(-3deg);
+}
+
+/* ink flecks */
+.ink-fleck {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fleck, #b5642f);
+  animation: fleck 520ms ease-out forwards;
+  pointer-events: none;
+}
+@keyframes fleck {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+}
+:root[data-reduced="true"] .ink-fleck { display: none; }
+:root[data-reduced="true"] .stamp-impact-ring { display: none; }
+
+/* Fix 6: the star moment lands AFTER the stamp thunk (stamp settles ~620ms into
+   the set-piece; this plays on top, fully in by ~1090ms — inside the ≤1200ms
+   budget). Overshoot + settle, with a gold glow pulse and a glint sweep. */
+.stamp-star {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  color: var(--gold);
+  overflow: hidden;
+  border-radius: 50%;
+  animation: star-pop 460ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 0 0 rgba(212, 168, 67, 0));
+}
+@keyframes star-pop {
+  0% { transform: scale(0) rotate(-40deg); opacity: 0; filter: drop-shadow(0 0 0 rgba(212, 168, 67, 0)); }
+  55% { transform: scale(1.3) rotate(8deg); opacity: 1; filter: drop-shadow(0 0 10px rgba(231, 200, 118, 0.9)); }
+  100% { transform: scale(1) rotate(0); opacity: 1; filter: drop-shadow(0 0 3px rgba(212, 168, 67, 0.5)); }
+}
+/* glint sweep — a thin diagonal highlight crossing the star once */
+.stamp-star__glint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.85) 50%, transparent 62%);
+  transform: translateX(-120%);
+  animation: star-glint 420ms ease-out 60ms both;
+}
+@keyframes star-glint {
+  to { transform: translateX(120%); }
+}
+:root[data-reduced="true"] .stamp-star { animation: fade-in 160ms ease-out both; }
+:root[data-reduced="true"] .stamp-star__glint { display: none; }
+
+.stamp-microlabel {
+  font-size: var(--fs-meta);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--paper-meta);
+}
+/* Fix 3: redemption + continue sit side by side under the fact card. */
+.stamp-actions {
+  display: flex;
+  gap: var(--s3);
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+/* The stamp page is light (cream), so the ghost button needs dark ink here. */
+.stamp-actions .btn--ghost {
+  color: var(--paper-ink);
+  border-color: rgba(42, 38, 32, 0.22);
+}
+.stamp-actions .btn--ghost:active {
+  background: rgba(42, 38, 32, 0.06);
+}
+.stamp-fact {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  background: rgba(42, 38, 32, 0.05);
+  border-radius: var(--r);
+  padding: var(--s3);
+  color: var(--paper-ink);
+  font-size: var(--fs-body);
+  animation: slide-up 380ms ease-out both;
+}
+@keyframes slide-up {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+/* Fix 6: no star earned → the fact card takes the win emphasis. A gold ring
+   pulses in as it rises, so the moment still lands. Stays within the budget. */
+.stamp-fact--emphasis {
+  animation: stamp-fact-emphasis 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  box-shadow: 0 0 0 0 rgba(212, 168, 67, 0);
+}
+@keyframes stamp-fact-emphasis {
+  0% { transform: translateY(10px) scale(0.98); opacity: 0; box-shadow: 0 0 0 0 rgba(212, 168, 67, 0); }
+  55% { transform: translateY(0) scale(1.02); opacity: 1; box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.55); }
+  100% { transform: translateY(0) scale(1); opacity: 1; box-shadow: 0 0 0 1.5px rgba(212, 168, 67, 0.25); }
+}
+:root[data-reduced="true"] .stamp-fact--emphasis {
+  animation: fade-in 180ms ease-out both;
+  box-shadow: 0 0 0 1.5px rgba(212, 168, 67, 0.25);
+}
+.stamp-skiphint {
+  font-size: 12px;
+  color: var(--paper-meta);
+  opacity: 0.7;
+}
+
+/* ============================================================================
+   PASSPORT
+   ========================================================================== */
+.sheet {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+}
+.sheet__body {
+  overflow-y: auto;
+  padding: var(--s5);
+  -webkit-overflow-scrolling: touch;
+}
+.sheet__wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--s5);
+}
+
+.passport-book {
+  border-radius: var(--r-lg);
+  padding: var(--s6);
+  display: grid;
+  justify-items: center;
+  gap: var(--s3);
+  box-shadow: var(--shadow-lift);
+  color: #f3ead4;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: book-open 400ms ease-out;
+  transform-origin: left center;
+}
+@keyframes book-open {
+  from { transform: perspective(900px) rotateY(-22deg); opacity: 0.5; }
+  to { transform: perspective(900px) rotateY(0); opacity: 1; }
+}
+:root[data-reduced="true"] .passport-book { animation: none; }
+.passport-book__title {
+  font-family: var(--display);
+  letter-spacing: 0.16em;
+  font-size: 20px;
+  color: var(--gold-soft);
+}
+.passport-book__count {
+  font-size: var(--fs-meta);
+  color: rgba(243, 234, 212, 0.7);
+  letter-spacing: 0.08em;
+}
+
+/* passport covers (CSS-only, GDD §6) */
+.cover-voyager {
+  background:
+    radial-gradient(120% 100% at 30% 20%, #7a3530, #6e2f2a 60%, #5a2521);
+}
+.cover-field-linen {
+  background:
+    repeating-linear-gradient(45deg, #cdbb9c, #cdbb9c 2px, #c4b291 2px, #c4b291 4px),
+    #cdbb9c;
+  color: #43361f;
+}
+.cover-field-linen .passport-book__title { color: #5b4a28; }
+.cover-deep-sea {
+  background: radial-gradient(120% 100% at 50% 30%, #24385c, #1b2a44 70%, #131f33);
+}
+.cover-summit {
+  background: linear-gradient(180deg, #2c4d3d, #244033 70%, #1b3026);
+}
+.cover-aurora {
+  background:
+    linear-gradient(120deg, #11161d, #16202e, #11161d);
+  background-size: 200% 200%;
+  animation: aurora-drift 8s ease-in-out infinite;
+}
+@keyframes aurora-drift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+:root[data-reduced="true"] .cover-aurora { animation: none; }
+
+/* stamp pages by region */
+.region-page {
+  background: linear-gradient(180deg, #f6f1e7, #efe7d6);
+  border-radius: var(--r);
+  padding: var(--s4);
+  box-shadow: var(--shadow-card);
+  color: var(--paper-ink);
+}
+.region-page__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s3);
+}
+.region-page__title {
+  font-family: var(--display);
+  font-size: 20px;
+}
+.region-page__count {
+  font-size: var(--fs-meta);
+  color: var(--paper-meta);
+}
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: var(--s3);
+}
+.stamp-cell {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.stamp-cell svg {
+  width: 84px;
+  height: 84px;
+}
+.stamp-cell.is-empty svg {
+  opacity: 0.18;
+}
+.stamp-cell__label {
+  font-size: 11px;
+  color: var(--paper-meta);
+  text-align: center;
+}
+
+/* cover + badge pickers */
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--s4);
+}
+.cover-tile {
+  border: none;
+  border-radius: var(--r);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  background: transparent;
+  transition: transform 150ms ease-out;
+}
+.cover-tile:active {
+  transform: translateY(1px);
+}
+.cover-tile.is-active {
+  box-shadow: 0 0 0 3px var(--gold), var(--shadow-card);
+}
+.cover-tile.is-locked {
+  filter: grayscale(0.7) brightness(0.7);
+}
+.cover-tile.is-minting {
+  animation: mint 500ms ease-out;
+}
+@keyframes mint {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+:root[data-reduced="true"] .cover-tile.is-minting { animation: none; }
+.cover-tile__swatch {
+  height: 90px;
+  display: grid;
+  place-items: center;
+  color: var(--gold-soft);
+}
+.cover-tile__meta {
+  padding: var(--s2) var(--s3);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  display: grid;
+  gap: 2px;
+}
+.cover-tile__name {
+  font-family: var(--display);
+  font-size: 15px;
+}
+.cover-tile__lock {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--s4);
+}
+.badge {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-radius: var(--r);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(230, 227, 220, 0.08);
+  text-align: center;
+}
+.badge.is-earned {
+  background: rgba(212, 168, 67, 0.08);
+  border-color: rgba(212, 168, 67, 0.3);
+}
+.badge__disc {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(230, 227, 220, 0.06);
+  color: var(--text-dim);
+}
+.badge.is-earned .badge__disc {
+  background: radial-gradient(circle at 35% 30%, var(--gold-soft), var(--gold));
+  color: #3a2c0a;
+}
+.badge__name {
+  font-family: var(--display);
+  font-size: 16px;
+  color: var(--text);
+}
+.badge__desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ============================================================================
+   EXPLORER LOG
+   ========================================================================== */
+.log-list {
+  display: grid;
+  gap: var(--s3);
+}
+.log-empty {
+  text-align: center;
+  color: var(--text-dim);
+  padding: var(--s6);
+}
+.log-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s4);
+  border-radius: var(--r);
+  background: linear-gradient(180deg, #f6f1e7, #efe7d6);
+  color: var(--paper-ink);
+  box-shadow: var(--shadow-card);
+}
+.log-entry__text {
+  flex: 1;
+  font-size: var(--fs-body);
+}
+.log-entry__tag {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-meta);
+  font-weight: 700;
+}
+
+/* ============================================================================
+   SETTINGS
+   ========================================================================== */
+.settings-list {
+  display: grid;
+  gap: var(--s3);
+}
+.setrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s4);
+  border-radius: var(--r);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(230, 227, 220, 0.08);
+}
+.setrow__label {
+  font-weight: 600;
+}
+.setrow__hint {
+  font-size: var(--fs-meta);
+  color: var(--text-dim);
+}
+.segmented {
+  display: inline-flex;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid rgba(230, 227, 220, 0.18);
+}
+.segmented button {
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 10px 16px;
+  min-height: 44px;
+  font-weight: 600;
+  font-family: var(--body);
+}
+.segmented button.is-on {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* confirm dialog */
+.confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 11, 14, 0.6);
+  padding: var(--s5);
+}
+.confirm__box {
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: var(--r-lg);
+  padding: var(--s5);
+  max-width: 420px;
+  display: grid;
+  gap: var(--s4);
+  box-shadow: var(--shadow-lift);
+}
+.confirm__buttons {
+  display: flex;
+  gap: var(--s3);
+  justify-content: flex-end;
+}
+
+/* page section title block */
+.section-title {
+  display: grid;
+  gap: 4px;
+  margin-bottom: var(--s3);
+}
+
+/* error boundary */
+.errbound {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--s4);
+  padding: var(--s6);
+  text-align: center;
+}
+
+/* back button row */
+.backrow {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-bottom: 1px solid rgba(230, 227, 220, 0.08);
+}
+.backrow h2 {
+  font-size: var(--fs-h2);
+}

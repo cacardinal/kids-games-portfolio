@@ -1,0 +1,336 @@
+/* Inventor Lab — drafting-sheet design system.
+   The bench is a real engineering drawing: blueprint grid, chalk-dust speckle, dimension arrows,
+   a corner title block, dashed part outlines, and an APPROVED stamp. Mono = the engineer's
+   lettering (labels, stamps, diagnostics); Inter = prose (briefings, copy). */
+
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+
+:root {
+  /* Palette (spec — binding) */
+  --bg: #0e2a47;          /* blueprint paper */
+  --panel: #0a1f36;       /* deep panel */
+  --panel-2: #0c2440;     /* slightly lifted panel */
+  --grid: rgba(255, 255, 255, 0.08);
+  --grid-major: rgba(255, 255, 255, 0.14);
+  --chalk: #e8f1ff;       /* chalk lettering / line ink */
+  --chalk-dim: #9fb4d4;   /* secondary lettering */
+  --cyan: #4cc9f0;        /* primary action / live accent */
+  --success: #80ed99;     /* approved / solved green */
+  --warn: #ffd166;        /* warn amber / forbidden */
+
+  /* Pen color (cosmetic; recolors placed-part lines + flag). Default = Chalk White. */
+  --pen: #e8f1ff;
+
+  --radius: 8px;          /* one radius, used everywhere */
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --sans: "Inter", system-ui, sans-serif;
+
+  /* Type scale */
+  --t-h1: 34px;
+  --t-h2: 24px;
+  --t-body: 18px;
+  --t-meta: 14px;
+  --t-micro: 12px;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--sans);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--chalk);
+  background:
+    /* chalk-dust speckle */
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.025) 0 1px, transparent 1px) 0 0 / 90px 90px,
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.02) 0 1px, transparent 1px) 0 0 / 130px 130px,
+    /* blueprint grid */
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 32px 32px,
+    /* major grid lines */
+    linear-gradient(var(--grid-major) 1px, transparent 1px) 0 0 / 160px 160px,
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px) 0 0 / 160px 160px,
+    radial-gradient(140% 120% at 50% 0%, #11345a 0%, var(--bg) 55%, #0a2138 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Selection + touch hygiene */
+.no-select { user-select: none; -webkit-user-select: none; }
+button { font-family: inherit; }
+
+/* Focus visibility (a11y floor) */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Mono lettering helpers ---------- */
+.mono { font-family: var(--mono); letter-spacing: 0.04em; }
+.label {
+  font-family: var(--mono);
+  font-size: var(--t-meta);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: var(--panel-2);
+  color: var(--chalk);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  min-height: 48px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  text-transform: uppercase;
+  font-size: var(--t-meta);
+}
+.btn:hover { border-color: rgba(255,255,255,0.32); }
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary {
+  background: linear-gradient(180deg, rgba(76,201,240,0.22), rgba(76,201,240,0.10));
+  border-color: rgba(76,201,240,0.55);
+  color: #d8f4ff;
+  font-weight: 600;
+}
+.btn-primary:hover { border-color: var(--cyan); background: linear-gradient(180deg, rgba(76,201,240,0.30), rgba(76,201,240,0.14)); }
+
+.btn-ghost { background: transparent; }
+
+/* ---------- Title block (corner of every drawing) ---------- */
+.title-block {
+  font-family: var(--mono);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 6px;
+  background: rgba(8, 24, 44, 0.72);
+  backdrop-filter: blur(2px);
+}
+.title-block .tb-row { display: flex; }
+.title-block .tb-cell {
+  padding: 6px 10px;
+  border-right: 1px solid rgba(255,255,255,0.14);
+  border-top: 1px solid rgba(255,255,255,0.14);
+}
+.title-block .tb-cell:last-child { border-right: none; }
+.title-block .tb-row:first-child .tb-cell { border-top: none; }
+.tb-k { font-size: 10px; letter-spacing: 0.14em; color: var(--chalk-dim); text-transform: uppercase; }
+.tb-v { font-size: 15px; letter-spacing: 0.06em; color: var(--chalk); }
+
+/* ---------- Cards / panels ---------- */
+.panel {
+  background: linear-gradient(180deg, rgba(12,36,64,0.85), rgba(10,31,54,0.92));
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: var(--radius);
+}
+
+/* Reduced motion: kill set-pieces + ambient motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 80ms !important; }
+}
+
+/* ---------- App shell ---------- */
+.app { min-height: 100%; display: flex; flex-direction: column; }
+
+/* Generic stack helpers */
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+.grow { flex: 1; }
+
+/* ---------- Mission cards ---------- */
+.level-card { transition: transform 120ms ease, border-color 120ms ease; }
+.level-card:hover { transform: translateY(-2px); border-color: rgba(76,201,240,0.4); }
+.level-card:active { transform: translateY(0) scale(0.99); }
+
+/* ---------- Tray cards ---------- */
+.tray-card:not(.unaffordable):hover { transform: translateY(-2px); }
+.tray-card:not(:disabled):active { transform: translateY(0) scale(0.98); }
+
+/* ---------- The sheet ---------- */
+.sheet-wrap {
+  border-radius: 10px;
+  background: rgba(8, 22, 42, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 18px 40px rgba(0,0,0,0.35);
+  transition: filter 200ms ease;
+}
+.sheet-wrap.engaged { filter: brightness(1.08); }
+.sheet {
+  background:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
+    radial-gradient(120% 100% at 50% 0%, #103358 0%, #0c2647 60%, #0a1f3a 100%);
+}
+
+/* Selection halo marching dashes */
+@keyframes march { to { stroke-dashoffset: -22; } }
+.sel-march { animation: march 1.2s linear infinite; }
+
+/* Live pip blink on the hero */
+@keyframes pip { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.live-pip { animation: pip 1.8s ease-in-out infinite; }
+
+/* Flag raise */
+.flag .flag-staff { stroke-dasharray: 64; stroke-dashoffset: 64; }
+.flag.raised .flag-staff { animation: staff-draw 320ms ease-out forwards; }
+.flag .flag-cloth { transform-origin: 0 -52px; transform: scaleX(0); }
+.flag.raised .flag-cloth { animation: cloth-unfurl 600ms ease-out 280ms forwards; }
+@keyframes staff-draw { to { stroke-dashoffset: 0; } }
+@keyframes cloth-unfurl {
+  0% { transform: scaleX(0) skewX(0deg); }
+  60% { transform: scaleX(1) skewX(-6deg); }
+  80% { transform: scaleX(1) skewX(4deg); }
+  100% { transform: scaleX(1) skewX(0deg); }
+}
+
+/* TEST counter stamp (slides in from the right) */
+.test-stamp {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 12px;
+  border: 1px solid var(--cyan);
+  border-radius: 6px;
+  color: #d8f4ff;
+  background: rgba(8,24,44,0.8);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  animation: stamp-slide 160ms ease-out;
+}
+@keyframes stamp-slide { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* APPROVED stamp slam */
+.approved-stamp {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-6deg);
+  pointer-events: none;
+  animation: stamp-slam 380ms cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+.approved-inner {
+  border: 3px solid var(--success);
+  border-radius: 8px;
+  padding: 10px 22px;
+  color: var(--success);
+  background: rgba(8,24,44,0.55);
+  text-align: center;
+  box-shadow: 0 0 24px rgba(128,237,153,0.25);
+}
+.approved-word { font-size: 40px; font-weight: 600; letter-spacing: 0.1em; line-height: 1; }
+.approved-sub { font-size: 12px; letter-spacing: 0.16em; margin-top: 6px; color: var(--chalk); }
+@keyframes stamp-slam {
+  0% { transform: translate(-50%, -50%) rotate(-6deg) scale(1.6); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(-6deg) scale(1); opacity: 1; }
+}
+
+/* Toasts */
+.toast {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--chalk-dim);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: rgba(8,24,44,0.7);
+  animation: stamp-slide 180ms ease-out;
+}
+
+/* Goal solved transition */
+.goal.solved rect { transition: stroke 160ms ease, fill 160ms ease; }
+
+/* FIX 7 — impact chalk-dust burst: specks puff outward and fade. */
+.dust { animation: dust-fade 520ms ease-out forwards; }
+.dust-speck { animation: dust-drift 520ms ease-out forwards; }
+@keyframes dust-fade { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+@keyframes dust-drift {
+  0% { transform: translate(0, 0) scale(0.6); }
+  100% { transform: translate(0, -10px) scale(1.5); }
+}
+
+/* FIX 6 — rejected-placement cue: amber box pops then fades. */
+.reject-cue { animation: reject-pop 900ms ease-out forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes reject-pop {
+  0% { opacity: 0; }
+  14% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* FIX 4 — tap-to-skip hint during a run (bottom-center of the sheet). */
+.skip-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border: 1px solid rgba(232,241,255,0.3);
+  border-radius: 999px;
+  color: var(--chalk-dim);
+  background: rgba(8,24,44,0.7);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  animation: skip-pulse 1.8s ease-in-out infinite;
+}
+@keyframes skip-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+/* FIX 6 — commendation toast (moment of badge earn), slides down from the top of the sheet. */
+.badge-toast {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border: 1.5px solid var(--success);
+  border-radius: 8px;
+  color: var(--success);
+  background: rgba(8,24,44,0.86);
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  box-shadow: 0 0 18px rgba(128,237,153,0.22);
+  animation: badge-drop 2600ms ease-out forwards;
+}
+@keyframes badge-drop {
+  0% { transform: translate(-50%, -16px); opacity: 0; }
+  10% { transform: translate(-50%, 0); opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .approved-stamp { animation: none; }
+  .flag .flag-staff { stroke-dashoffset: 0; }
+  .flag .flag-cloth { transform: scaleX(1); }
+  .sel-march, .live-pip { animation: none; }
+  /* Keep the cues visible but static (no motion) — they still fade so the screen doesn't accrete marks. */
+  .dust-speck { animation: none; }
+  .skip-hint { animation: none; opacity: 0.8; }
+  .dust { animation: dust-fade 520ms linear forwards; }
+  .reject-cue { animation: reject-pop 900ms linear forwards; }
+  .badge-toast { animation: badge-fade 2600ms linear forwards; }
+  @keyframes badge-fade { 0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+}

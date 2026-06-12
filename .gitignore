@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+*.log
+.vite/
+
+# Local profile overrides — real first names live here only, never committed.
+# (`*.local` above does not match a `.ts` file, so this rule is required.)
+profiles.local.ts
+**/profiles.local.ts
+
+# Private pre-public history backup — never push
+*.bundle

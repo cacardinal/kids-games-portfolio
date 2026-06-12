@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Blueprint paper -->
+  <rect width="512" height="512" rx="96" fill="#0e2a47"/>
+  <!-- grid -->
+  <g stroke="#ffffff" stroke-opacity="0.10" stroke-width="2">
+    <path d="M0 128H512M0 256H512M0 384H512M128 0V512M256 0V512M384 0V512"/>
+  </g>
+  <!-- a ramp + ball: the core mechanic, in chalk + cyan -->
+  <!-- ramp (right triangle) -->
+  <polygon points="120,360 320,360 120,200" fill="#0a1f36" stroke="#e8f1ff" stroke-width="10" stroke-linejoin="round"/>
+  <!-- ball rolling down the slope -->
+  <circle cx="220" cy="252" r="40" fill="#4cc9f0" stroke="#e8f1ff" stroke-width="10"/>
+  <!-- dock / goal target on the right -->
+  <g stroke="#80ed99" stroke-width="10" fill="none">
+    <path d="M360 300 V392 H452"/>
+    <path d="M452 300 V392"/>
+  </g>
+  <!-- dimension arrow under the ramp -->
+  <g stroke="#ffd166" stroke-width="6">
+    <path d="M120 410 H320"/>
+  </g>
+  <polygon points="120,410 134,403 134,417" fill="#ffd166"/>
+  <polygon points="320,410 306,403 306,417" fill="#ffd166"/>
+</svg>

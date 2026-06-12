@@ -1,0 +1,32 @@
+# Kids Games Portfolio
+
+Five educational web games for our 6-year-old and our 8-year-old, built to replace ad-funded iPad games — real-tool register, no ads, no dark patterns, no streaks. All five SHIPPED 2026-06-12 after a studio pipeline: spec → designer GDD → director approval → engineer build → QA → blind critic → fix rounds → re-verdict.
+
+## The apps
+
+| App | Port | Play it | Final verdict |
+|-----|------|---------|---------------|
+| Detective Academy | 5183 | solve warm little mysteries by citing evidence | SHIP — 361 tests |
+| World Explorer | 5184 | passport-stamp atlas expeditions | SHIP — 44 tests |
+| Inventor Lab | 5185 | blueprint physics contraptions, failure-is-data | SHIP — 120 tests |
+| Strategy Kingdom | 5186 | visible-arithmetic kingdom seasons | SHIP — 76 tests |
+| Code Quest | 5187 | mission-control rover programming | SHIP — 209 tests |
+
+## Run
+
+```bash
+cd <app-dir> && npm install && npm run dev   # ports are pinned (strictPort)
+```
+
+Each app: `npx vitest run` (logic proofs), `npx tsc --noEmit`, `npm run build`. Profiles: Player One / Player Two / Guest (localStorage, per-profile saves, TTS read-aloud on all prose, mute persists). To use real first names locally without committing them, copy `src/profiles.local.example.ts` to `src/profiles.local.ts` (gitignored) in any app — its exported `PROFILES` replaces the defaults; the profile `id` keys each save.
+
+## Where things are
+
+- `PLAN.md` — architecture, studio model, engine decision, definition of done
+- `specs/` — binding contracts; `specs/gdd/` — approved game design documents
+- `verification/` — run-log, QA screenshots, full blind-critic reviews + re-verdicts per app
+- `inventor-lab/TUNING.md` — matter-js findings (static-restitution bug, liveliness retune, snap-tolerance)
+
+## Known follow-ups (v1.1 backlog)
+
+Standing serve for the kids (LAN/LaunchAgent or built+hosted) · iPad manual smoke (speech, touch, add-to-home-screen) · Explorer: stamp-gating behind correct retry, landmark art, more regions · Detective: stable pets per character, deeper tier-3 reasoning · Code Quest: sector 4+, broader read-aloud · Kingdom: deeper event decks, endless mode · Inventor: sandbox mode, seesaw part · All: offline service workers.

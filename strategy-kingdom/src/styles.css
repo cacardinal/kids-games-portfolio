@@ -1,0 +1,1387 @@
+/* ============================================================================
+   Strategy Kingdom — parchment-ledger design system.
+   Palette/fonts are pinned by the app spec. The atmosphere (ledger lines on
+   parchment, wax/rank seals, a waving crest banner, candle-warm panel glow,
+   season vignette) is a hard requirement; the END TURN ledger tick is the
+   signature moment.
+   ============================================================================ */
+
+@import "@fontsource/spectral/400.css";
+@import "@fontsource/spectral/500.css";
+@import "@fontsource/spectral/600.css";
+@import "@fontsource/spectral/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+:root {
+  /* App spec palette */
+  --bg: #171a21;
+  --panel: #20242e;
+  --parchment: #e9dfc8;
+  --parchment-deep: #ddd0b2;
+  --brass: #c9a86a;
+  --brass-bright: #d9b945;
+  --food: #8ab87a;
+  --wood: #a9805b;
+  --stone: #9aa3ad;
+  --gold: #d9b945;
+  --research: #7fa6c9;
+  --text: #e8e5de;
+  --text-dim: #b3ad9e;
+  --ink: #3a3422; /* dark sepia ink on parchment */
+  --ink-soft: #6a6048;
+  --seal-red: #8a3a2e;
+  --seal-wax: #a8463a;
+
+  --radius: 8px; /* one radius, used everywhere */
+  --shadow-panel: 0 2px 0 rgba(0, 0, 0, 0.25), 0 12px 28px rgba(0, 0, 0, 0.35);
+  --glow-candle: 0 0 0 1px rgba(201, 168, 106, 0.18), 0 0 36px -6px rgba(217, 185, 69, 0.22);
+
+  --font-display: "Spectral", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  /* Season vignette tints (cosmetic, behind the board) */
+  --season-spring: #2a3a2a;
+  --season-summer: #3a3520;
+  --season-fall: #3a2a1c;
+  --season-winter: #232a33;
+  --season: var(--season-spring);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Candle-warm, textured app backdrop with a soft season vignette. */
+.app {
+  min-height: 100%;
+  position: relative;
+  overflow-x: hidden;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, color-mix(in srgb, var(--season) 70%, transparent), transparent 70%),
+    radial-gradient(900px 600px at 80% 110%, rgba(217, 185, 69, 0.06), transparent 60%),
+    var(--bg);
+  transition: background 320ms ease;
+}
+/* Faint linen weave over everything for texture (never flat admin gray). */
+.app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.015) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px 3px);
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+h1 {
+  font-size: 36px;
+  line-height: 1.1;
+}
+h2 {
+  font-size: 26px;
+}
+.meta {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.display {
+  font-family: var(--font-display);
+}
+
+/* ── Parchment panel: ledger lines + warm glow ──────────────────────────── */
+.parchment {
+  position: relative;
+  color: var(--ink);
+  background:
+    /* candle warmth at top */
+    radial-gradient(120% 80% at 50% -20%, rgba(255, 244, 214, 0.65), transparent 60%),
+    /* aged edge */ radial-gradient(140% 120% at 50% 120%, rgba(120, 92, 40, 0.18), transparent 55%),
+    var(--parchment);
+  border: 1px solid color-mix(in srgb, var(--brass) 55%, #5a4a28);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+/* Horizontal ruled ledger lines. */
+.parchment.ruled {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 27px,
+      color-mix(in srgb, var(--ink) 16%, transparent) 27px 28px
+    ),
+    radial-gradient(120% 80% at 50% -20%, rgba(255, 244, 214, 0.5), transparent 60%),
+    var(--parchment);
+  background-attachment: local;
+}
+/* A faint red margin rule like a real ledger. */
+.parchment.ledger-margin::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 42px;
+  width: 1px;
+  background: color-mix(in srgb, var(--seal-red) 40%, transparent);
+  pointer-events: none;
+}
+
+/* Dark slate panel (for the chrome around the parchment). */
+.slate {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 96%, #fff 4%), var(--panel));
+  border: 1px solid rgba(201, 168, 106, 0.16);
+  border-radius: var(--radius);
+  box-shadow: var(--glow-candle);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 17px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--brass) 60%, #4a3c1e);
+  color: var(--ink);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brass) 80%, #fff 20%), var(--brass));
+  box-shadow: 0 2px 0 #6a5526, 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
+  user-select: none;
+}
+.btn:hover {
+  filter: brightness(1.05);
+}
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #6a5526, 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.btn:disabled {
+  filter: grayscale(0.5) brightness(0.8);
+  cursor: not-allowed;
+  box-shadow: 0 2px 0 #4a4a4a;
+}
+.btn.secondary {
+  color: var(--text);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 80%, #fff 8%), var(--panel));
+  border-color: rgba(201, 168, 106, 0.4);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+.btn.big {
+  min-height: 60px;
+  font-size: 20px;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(201, 168, 106, 0.35);
+  color: var(--text);
+  box-shadow: none;
+}
+
+/* Icon button (e.g. SpeakButton, mute). */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(201, 168, 106, 0.35);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  color: var(--brass);
+  transition:
+    transform 120ms ease,
+    background 120ms ease;
+}
+.icon-btn:hover {
+  background: color-mix(in srgb, var(--brass) 16%, var(--panel));
+}
+.icon-btn:active {
+  transform: scale(0.94);
+}
+.icon-btn.on-parchment {
+  color: var(--seal-red);
+  border-color: color-mix(in srgb, var(--seal-red) 40%, transparent);
+  background: color-mix(in srgb, var(--seal-red) 8%, var(--parchment));
+}
+
+:focus-visible {
+  outline: 3px solid var(--brass-bright);
+  outline-offset: 2px;
+}
+
+/* ── Monogram discs (profile) ──────────────────────────────────────────── */
+.monogram {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 700;
+  color: #14161a;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 2px 6px rgba(255, 255, 255, 0.4),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Crest banner (waves continuously; perks/droops on surplus/deficit) ──── */
+.banner-wrap {
+  position: relative;
+  width: 100%;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.4));
+}
+.banner-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: top center;
+  animation: bannerWave 4s ease-in-out infinite;
+}
+.banner-svg.perk {
+  animation: bannerPerk 600ms ease-out;
+}
+.banner-svg.droop {
+  animation: none;
+  filter: saturate(0.6);
+  transform: skewX(-1deg) translateY(4px) scaleY(0.97);
+  opacity: 0.85;
+}
+@keyframes bannerWave {
+  0%,
+  100% {
+    transform: skewX(-1.5deg) rotate(-0.3deg);
+  }
+  50% {
+    transform: skewX(1.5deg) rotate(0.3deg);
+  }
+}
+@keyframes bannerPerk {
+  0% {
+    transform: translateY(0) scaleY(1);
+  }
+  40% {
+    transform: translateY(-6px) scaleY(1.06);
+    filter: brightness(1.12);
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+}
+.banner-shimmer .field-shimmer {
+  animation: shimmer 3.2s linear infinite;
+}
+@keyframes shimmer {
+  0% {
+    opacity: 0.15;
+    transform: translateX(-30%);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.15;
+    transform: translateX(130%);
+  }
+}
+
+/* ── Wax / rank seals ───────────────────────────────────────────────────── */
+.seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #f4e8d8;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-align: center;
+  background:
+    radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--seal-wax) 80%, #fff 20%), var(--seal-red) 60%),
+    var(--seal-red);
+  box-shadow:
+    inset 0 2px 5px rgba(255, 255, 255, 0.25),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.4),
+    0 4px 10px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+.seal::before {
+  /* scalloped wax rim */
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    color-mix(in srgb, var(--seal-red) 80%, #000) 0deg 9deg,
+    var(--seal-red) 9deg 18deg
+  );
+  z-index: -1;
+  filter: blur(0.4px);
+}
+/* The rank-seal slam: falls in big, overshoots through, squashes like soft wax
+   on impact, rebounds, and throws one burst of ink flecks. Same set-piece beat. */
+.seal.slam {
+  animation: sealSlam 700ms cubic-bezier(0.3, 0.9, 0.4, 1) both;
+}
+@keyframes sealSlam {
+  0% {
+    transform: scale(1.7) rotate(-10deg);
+    opacity: 0;
+  }
+  38% {
+    transform: scale(0.9) rotate(1.5deg); /* slam through */
+    opacity: 1;
+  }
+  54% {
+    transform: scaleX(1.12) scaleY(0.85) rotate(0deg); /* wax squash */
+  }
+  74% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+.seal.slam::after {
+  /* one ink-fleck particle burst, timed to the impact */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow:
+    0 0 0 1px var(--seal-red),
+    0 0 0 1px var(--seal-red),
+    0 0 0 1px var(--seal-wax),
+    0 0 0 1px var(--seal-red),
+    0 0 0 1px var(--seal-wax),
+    0 0 0 1px var(--seal-red),
+    0 0 0 1px var(--seal-wax);
+  animation: inkFlecks 480ms ease-out 270ms forwards;
+}
+@keyframes inkFlecks {
+  0% {
+    opacity: 1;
+    box-shadow:
+      0 0 0 2px var(--seal-red),
+      0 0 0 2px var(--seal-red),
+      0 0 0 2px var(--seal-wax),
+      0 0 0 2px var(--seal-red),
+      0 0 0 2px var(--seal-wax),
+      0 0 0 2px var(--seal-red),
+      0 0 0 2px var(--seal-wax);
+  }
+  100% {
+    opacity: 0;
+    box-shadow:
+      -58px -34px 0 0 var(--seal-red),
+      52px -42px 0 0 var(--seal-red),
+      -40px 40px 0 0 var(--seal-wax),
+      64px 22px 0 0 var(--seal-red),
+      -66px 8px 0 0 var(--seal-wax),
+      10px -60px 0 0 var(--seal-red),
+      28px 52px 0 0 var(--seal-wax);
+  }
+}
+
+/* ── Layout shells ──────────────────────────────────────────────────────── */
+.center-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Reign screen grid ──────────────────────────────────────────────────── */
+.reign {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 16px 24px;
+  min-height: 100vh;
+}
+.reign-header {
+  grid-column: 1 / -1;
+}
+@media (max-width: 920px) {
+  .reign {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Resource bar ───────────────────────────────────────────────────────── */
+.resbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.res {
+  flex: 1 1 0;
+  min-width: 92px;
+  position: relative;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: var(--radius);
+  border: 1px solid rgba(201, 168, 106, 0.22);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, #fff 6%), var(--panel));
+  color: var(--text);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.res:hover {
+  box-shadow: var(--glow-candle);
+}
+.res:active {
+  transform: translateY(1px);
+}
+.res .res-label {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.res .res-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.res .res-delta {
+  font-size: 13px;
+  font-weight: 600;
+}
+.res .res-delta.up {
+  color: var(--food);
+}
+.res .res-delta.down {
+  color: #d08a6a;
+}
+.res .res-delta.flat {
+  color: var(--text-dim);
+}
+.res .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.res.rolling .res-value {
+  animation: rollPop 250ms ease-out;
+}
+@keyframes rollPop {
+  0% {
+    transform: scale(1.18);
+    filter: brightness(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.res.is-pop {
+  border-color: rgba(217, 185, 69, 0.4);
+}
+
+/* Tap-to-see formula popover. */
+.formula-pop {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--parchment);
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--brass) 50%, #5a4a28);
+  box-shadow: var(--shadow-panel);
+  font-family: var(--font-display);
+}
+.formula-pop .fline {
+  font-size: 17px;
+  padding: 2px 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--ink) 22%, transparent);
+}
+.formula-pop .fline:last-child {
+  border-bottom: none;
+}
+.formula-pop .fbrass {
+  color: var(--seal-red);
+  font-weight: 700;
+}
+
+/* ── Plot grid (3×4) ────────────────────────────────────────────────────── */
+.board {
+  position: relative;
+  padding: 16px;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(100% 80% at 50% 0%, color-mix(in srgb, var(--season) 60%, transparent), transparent 70%),
+    color-mix(in srgb, var(--panel) 88%, #000 12%);
+  border: 1px solid rgba(201, 168, 106, 0.18);
+  box-shadow: var(--glow-candle);
+  touch-action: none;
+}
+.plot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.plot {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius);
+  border: 1px dashed rgba(201, 168, 106, 0.3);
+  background: color-mix(in srgb, #2a2a22 70%, var(--panel));
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  user-select: none;
+  min-height: 64px;
+}
+.plot.empty:hover {
+  border-color: var(--brass);
+  box-shadow: inset 0 0 0 1px rgba(201, 168, 106, 0.3);
+}
+.plot.empty:active {
+  transform: scale(0.97);
+}
+.plot.built {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--brass) 40%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 70%, #2e2a1e), #232018);
+  color: var(--text);
+  cursor: pointer;
+}
+.plot.built.selected {
+  box-shadow: 0 0 0 2px var(--brass-bright), var(--glow-candle);
+}
+.plot.queued {
+  border-color: color-mix(in srgb, var(--brass) 35%, transparent);
+}
+.plot .plot-icon {
+  width: 46%;
+  height: 46%;
+}
+.plot .plot-name {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+.plot .worker-pips {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: flex;
+  gap: 2px;
+}
+.plot .pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--food);
+  box-shadow: 0 0 4px rgba(138, 184, 122, 0.6);
+}
+.plot .pip.off {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+.plot .ready-tag {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--brass);
+  color: #1a1a14;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.plot.scaffold .plot-icon {
+  opacity: 0.45;
+}
+/* Build completion: the building pops onto its plot, lands with a squash, and a
+   puff of dust kicks up from its footing and settles. Plays as the ledger lifts. */
+.plot.just-built {
+  animation: buildSettle 480ms cubic-bezier(0.2, 1.1, 0.3, 1);
+}
+@keyframes buildSettle {
+  0% {
+    transform: scale(0.55);
+  }
+  50% {
+    transform: scale(1.09);
+  }
+  70% {
+    transform: scaleX(1.05) scaleY(0.93); /* the settle */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.plot.just-built::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 10% 88%, rgba(201, 168, 106, 0.85) 0 3px, transparent 4px),
+    radial-gradient(circle at 28% 97%, rgba(169, 128, 91, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 93%, rgba(233, 223, 200, 0.75) 0 3px, transparent 4px),
+    radial-gradient(circle at 71% 97%, rgba(201, 168, 106, 0.8) 0 2px, transparent 3px),
+    radial-gradient(circle at 90% 89%, rgba(169, 128, 91, 0.85) 0 3px, transparent 4px);
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: dustKick 460ms ease-out 200ms;
+}
+@keyframes dustKick {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(0);
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3) translateY(-8px);
+  }
+}
+
+/* ── Counsel panel ──────────────────────────────────────────────────────── */
+.counsel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.counsel-card {
+  padding: 16px 18px;
+}
+.counsel-card .counsel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.counsel-card .counsel-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--seal-red);
+  letter-spacing: 0.02em;
+}
+.counsel-text {
+  font-size: 18px;
+  line-height: 1.55;
+}
+.counsel-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* Event card deal-in. */
+.event-card {
+  padding: 16px 18px;
+}
+/* The post-choice resolution line (only when caps/floors modified the numbers). */
+.resolution-note {
+  animation: fadeIn 280ms ease-out;
+}
+.event-card.deal-in {
+  animation: dealIn 240ms ease-out;
+}
+@keyframes dealIn {
+  0% {
+    transform: rotate(-8deg) translateY(-24px);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(0) translateY(0);
+    opacity: 1;
+  }
+}
+.event-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.event-opt {
+  text-align: left;
+  font-size: 17px;
+  line-height: 1.4;
+  padding: 12px 14px;
+  min-height: 48px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--brass) 55%, #5a4a28);
+  background: color-mix(in srgb, var(--parchment-deep) 70%, var(--parchment));
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: transform 120ms ease, background 120ms ease;
+}
+.event-opt:hover {
+  background: var(--parchment);
+}
+.event-opt:active {
+  transform: translateY(1px);
+}
+.event-opt.chosen {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brass) 80%, #fff 20%), var(--brass));
+  font-weight: 700;
+}
+
+/* ── Worker stepper sheet ───────────────────────────────────────────────── */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 14, 0.55);
+  display: grid;
+  align-items: end;
+  z-index: 40;
+  animation: fadeIn 160ms ease;
+}
+@media (min-width: 720px) {
+  .sheet-backdrop {
+    place-items: center;
+  }
+}
+.sheet {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  animation: sheetRise 200ms ease-out;
+}
+@media (min-width: 720px) {
+  .sheet {
+    border-radius: var(--radius);
+  }
+}
+@keyframes sheetRise {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+.stepper .step-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius);
+  font-size: 28px;
+  display: grid;
+  place-items: center;
+}
+.stepper .big-product {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 180px;
+  text-align: center;
+}
+.build-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.build-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  min-height: 56px;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--brass) 50%, #5a4a28);
+  background: color-mix(in srgb, var(--parchment-deep) 60%, var(--parchment));
+  color: var(--ink);
+  text-align: left;
+}
+.build-opt:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+.build-opt .b-icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  color: var(--ink);
+}
+.build-opt .b-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+}
+.build-opt .b-cost {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* ── Ledger overlay (the signature END TURN sequence) ───────────────────── */
+.ledger-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 11, 14, 0.5);
+  animation: fadeIn 160ms ease;
+}
+.ledger {
+  width: 100%;
+  max-width: 620px;
+  padding: 22px 26px;
+  max-height: 86vh;
+  overflow: hidden;
+}
+.ledger h2 {
+  color: var(--seal-red);
+  margin-bottom: 12px;
+  font-size: 24px;
+}
+.ledger-rows {
+  display: flex;
+  flex-direction: column;
+}
+.ledger-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  padding: 6px 0;
+  min-height: 34px;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateX(-8px);
+  border-bottom: 1px dotted color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.ledger-row.show {
+  animation: writeIn 240ms ease-out forwards;
+}
+@keyframes writeIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.ledger-row .lr-label {
+  font-weight: 600;
+  min-width: 96px;
+}
+.ledger-row .lr-formula {
+  color: var(--ink-soft);
+}
+.ledger-row .lr-amount {
+  margin-left: auto;
+  font-weight: 700;
+}
+.ledger-row.idle {
+  color: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+.ledger-row.consume .lr-amount {
+  color: #9a5a3a;
+}
+.ledger-row.net-surplus .lr-amount {
+  color: var(--seal-red);
+}
+.ledger-row.net-deficit {
+  color: var(--ink-soft);
+}
+/* A new building's first ledger line glints — one brass shine across the name. */
+.ledger-row.build-row.show .lr-formula {
+  background: linear-gradient(
+    100deg,
+    var(--ink-soft) 42%,
+    #b08d2f 50%,
+    #e3c878 52%,
+    var(--ink-soft) 60%
+  );
+  background-size: 240% 100%;
+  background-position: 120% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: formulaGlint 900ms ease-out 260ms forwards;
+}
+@keyframes formulaGlint {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+.ledger-skip {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+/* The +1-person villager pip: a small figure that arcs from the surplus line up
+   into the People chip. Outer span carries X linearly; the inner figure carries
+   Y with an up-and-over curve — together a parabolic arc with a soft landing. */
+.grow-pip {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  animation: pipArcX 520ms linear forwards;
+}
+.grow-pip .pip-figure {
+  display: block;
+  width: 15px;
+  height: 20px;
+  color: var(--food);
+  filter: drop-shadow(0 0 7px rgba(138, 184, 122, 0.85));
+  animation: pipArcY 520ms cubic-bezier(0.34, 0.12, 0.56, 1) forwards;
+}
+@keyframes pipArcX {
+  to {
+    transform: translateX(var(--dx));
+  }
+}
+@keyframes pipArcY {
+  0% {
+    transform: translateY(0) scale(0.7);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(calc(var(--dy) * 0.1 - 18px)) scale(1);
+  }
+  40% {
+    transform: translateY(calc(var(--dy) * 0.4 - 44px)) scale(1.05);
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(var(--dy)) scale(0.45);
+    opacity: 0;
+  }
+}
+
+/* ── Recap set-piece ────────────────────────────────────────────────────── */
+.recap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+.recap-scroll {
+  width: 100%;
+  max-width: 640px;
+  padding: 32px 36px;
+  text-align: center;
+}
+.recap-scroll h1 {
+  color: var(--seal-red);
+  margin-bottom: 8px;
+}
+.recap-lines {
+  margin: 20px 0;
+  text-align: left;
+}
+.recap-line {
+  font-family: var(--font-display);
+  font-size: 19px;
+  padding: 7px 0;
+  opacity: 0;
+  animation: writeIn 360ms ease-out forwards;
+  color: var(--ink);
+}
+.tally {
+  margin: 18px auto;
+  max-width: 340px;
+  text-align: left;
+}
+.tally-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 18px;
+  padding: 4px 0;
+  opacity: 0;
+  animation: writeIn 280ms ease-out forwards;
+  border-bottom: 1px dotted color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.tally-row.total {
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--seal-red);
+  border-bottom: none;
+  margin-top: 6px;
+}
+.recap-seal {
+  margin: 18px auto 8px;
+}
+.unlock-line {
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--seal-red);
+  animation: writeIn 360ms ease-out forwards;
+}
+.recap-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+/* ── Throne room ────────────────────────────────────────────────────────── */
+.throne {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+.throne-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.scenario-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.scenario-card {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+/* Warmth pass: cards lift to the hand, and glow candle-warm under a press. */
+.scenario-card:not(.locked):hover {
+  transform: translateY(-3px);
+  box-shadow:
+    var(--shadow-panel),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 30px -4px rgba(217, 185, 69, 0.3);
+}
+.scenario-card:not(.locked):active {
+  transform: translateY(-1px);
+  box-shadow:
+    var(--shadow-panel),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 0 1px rgba(201, 168, 106, 0.35),
+    0 0 46px -2px rgba(217, 185, 69, 0.5);
+}
+.scenario-card.locked {
+  opacity: 0.55;
+}
+/* Warmth pass: the banner answers a touch with one fuller sway, then settles
+   back into its standing wave. */
+.throne .banner-wrap:hover .banner-svg,
+.throne .banner-wrap:active .banner-svg {
+  animation: bannerSway 1100ms ease-in-out;
+}
+@keyframes bannerSway {
+  0% {
+    transform: skewX(-1.5deg) rotate(-0.3deg);
+  }
+  30% {
+    transform: skewX(6deg) rotate(1.5deg) translateY(-3px);
+  }
+  62% {
+    transform: skewX(-4deg) rotate(-1.1deg);
+  }
+  100% {
+    transform: skewX(1.5deg) rotate(0.3deg);
+  }
+}
+.scenario-card .sc-title {
+  font-size: 22px;
+}
+.scenario-card .sc-goal {
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+.scenario-card .sc-rank {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--seal-red);
+}
+.shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.badge-medallion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  border: 1px solid rgba(201, 168, 106, 0.25);
+}
+.badge-medallion.locked {
+  opacity: 0.4;
+  filter: grayscale(0.8);
+}
+.badge-medallion .bm-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+}
+.badge-medallion .bm-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.cosmetic-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.cos-chip {
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(201, 168, 106, 0.3);
+  background: color-mix(in srgb, var(--panel) 75%, transparent);
+  color: var(--text);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cos-chip.selected {
+  border-color: var(--brass-bright);
+  box-shadow: var(--glow-candle);
+}
+.cos-chip.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cos-swatch {
+  width: 18px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.section-label {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin: 24px 0 4px;
+}
+
+/* Goal progress chips in the reign header. */
+.goal-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.goal-chip {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 168, 106, 0.3);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.goal-chip.met {
+  color: #14161a;
+  background: var(--food);
+  border-color: var(--food);
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.turn-indicator {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--text-dim);
+}
+.spacer {
+  flex: 1;
+}
+.pad {
+  padding: 16px;
+}
+.gap8 {
+  gap: 8px;
+}
+.gap12 {
+  gap: 12px;
+}
+.gap16 {
+  gap: 16px;
+}
+.mt8 {
+  margin-top: 8px;
+}
+.mt16 {
+  margin-top: 16px;
+}
+.mt24 {
+  margin-top: 24px;
+}
+.center {
+  text-align: center;
+}
+.wrap {
+  flex-wrap: wrap;
+}
+
+/* ── Reduced motion: cut set-pieces, keep readability ───────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .banner-svg,
+  .banner-svg.perk,
+  .field-shimmer {
+    animation: none !important;
+  }
+  .ledger-row {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .ledger-row.show {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .recap-line,
+  .tally-row,
+  .unlock-line {
+    animation-duration: 1ms !important;
+    opacity: 1;
+  }
+  .seal.slam {
+    animation-duration: 120ms !important;
+  }
+  .seal.slam::after,
+  .plot.just-built::after {
+    animation: none !important;
+    opacity: 0;
+  }
+  .ledger-row.build-row.show .lr-formula {
+    animation: none !important;
+    background: none;
+    color: var(--ink-soft);
+  }
+  .grow-pip {
+    display: none;
+  }
+  .res.rolling .res-value,
+  .plot.just-built,
+  .event-card.deal-in,
+  .resolution-note,
+  .sheet,
+  .sheet-backdrop,
+  .ledger-overlay {
+    animation-duration: 1ms !important;
+  }
+  .scenario-card,
+  .scenario-card:not(.locked):hover,
+  .scenario-card:not(.locked):active {
+    transition: none;
+    transform: none;
+  }
+}
