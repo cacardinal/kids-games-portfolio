@@ -2,6 +2,20 @@
 
 Five educational web games for our 6-year-old and our 8-year-old, built to replace ad-funded iPad games — real-tool register, no ads, no dark patterns, no streaks. All five SHIPPED 2026-06-12 after a studio pipeline: spec → designer GDD → director approval → engineer build → QA → blind critic → fix rounds → re-verdict.
 
+## Play online
+
+Launcher: **https://cacardinal.github.io/kids-games-portfolio/**
+
+- Detective Academy — https://cacardinal.github.io/kids-games-portfolio/detective-academy/
+- World Explorer — https://cacardinal.github.io/kids-games-portfolio/world-explorer/
+- Inventor Lab — https://cacardinal.github.io/kids-games-portfolio/inventor-lab/
+- Strategy Kingdom — https://cacardinal.github.io/kids-games-portfolio/strategy-kingdom/
+- Code Quest — https://cacardinal.github.io/kids-games-portfolio/code-quest/
+
+Served from the `gh-pages` branch (a build artifact). The public build uses the default Player One / Player Two / Guest profiles — real first names live only in each app's gitignored `src/profiles.local.ts` and are quarantined out of the deploy.
+
+**Redeploy:** `bash scripts/deploy-pages.sh --publish` (run `bash scripts/deploy-pages.sh` with no flag first for a build + privacy-guard dry run).
+
 ## The apps
 
 | App | Port | Play it | Final verdict |
