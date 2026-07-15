@@ -1,6 +1,26 @@
+<div align="center">
+
+  <img src=".github/banner.svg" alt="Kids Games — five real games built for a 6- and 8-year-old" width="100%" />
+
+  <h3>Five real games. No ads, no dark patterns, no talking mascots.</h3>
+
+  <p><em>Educational web games for a 6- and 8-year-old, built to replace ad-funded iPad games. Real-tool register, learning through play, autosave, and read-aloud on every line of prose.</em></p>
+
+  <p>
+    <a href="https://cacardinal.github.io/kids-games-portfolio/"><img alt="Play online" src="https://img.shields.io/badge/play-online-d9a441" /></a>
+    <img alt="React and TypeScript" src="https://img.shields.io/badge/React_%2B_TypeScript-3178C6?logo=typescript&logoColor=white" />
+    <img alt="Tests passing" src="https://img.shields.io/badge/tests-810_passing-3fb950" />
+    <img alt="No ads, no dark patterns" src="https://img.shields.io/badge/no_ads-no_dark_patterns-0a7d52" />
+    <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue" />
+  </p>
+
+</div>
+
+---
+
 # Kids Games Portfolio
 
-Five educational web games for our 6-year-old and our 8-year-old, built to replace ad-funded iPad games — real-tool register, no ads, no dark patterns, no streaks. All five SHIPPED 2026-06-12 after a studio pipeline: spec → designer GDD → director approval → engineer build → QA → blind critic → fix rounds → re-verdict.
+Five educational web games for our 6-year-old and our 8-year-old, built to replace ad-funded iPad games. Real-tool register, no ads, no dark patterns, no streaks. All five shipped 2026-06-12 after a studio pipeline: spec, designer GDD, director approval, engineer build, QA, blind critic, fix rounds, re-verdict.
 
 ## Play online
 
