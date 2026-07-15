@@ -1686,3 +1686,30 @@ h3 {
   font-size: 12px;
   color: var(--text-faint);
 }
+
+.sync-status {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 4px;
+}
+.sync-link {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--green);
+  text-decoration: underline;
+  letter-spacing: 0.04em;
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.sync-link:hover { filter: brightness(1.15); }
+.sync-link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }

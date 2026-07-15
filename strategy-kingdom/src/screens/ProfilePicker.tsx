@@ -3,6 +3,60 @@ import { useStore, PROFILES } from "../state/store";
 import { COPY } from "../game/content";
 import { CrestBanner } from "../components/CrestBanner";
 import { sfx } from "../lib/sfx";
+import { useKgSync } from "../kgSync";
+
+/** Quiet single-line "sync on" affordance. Renders nothing when the cloud-sync
+ * bridge isn't present (plain `npm run dev` / no deploy-time injection). */
+function SyncStatusLine() {
+  const { present, user } = useKgSync();
+  if (!present) return null;
+
+  if (user) {
+    return (
+      <div
+        className="row wrap"
+        style={{ gap: 12, justifyContent: "center", minHeight: 44 }}
+      >
+        <span style={{ color: "var(--text)", wordBreak: "break-word" }}>
+          Synced as {user.email}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            void window.kgSync?.signOut();
+          }}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--brass)",
+            font: "inherit",
+            fontWeight: 600,
+            minHeight: 44,
+            padding: "0 4px",
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href="../"
+      style={{
+        color: "var(--brass)",
+        display: "inline-flex",
+        alignItems: "center",
+        minHeight: 44,
+        padding: "0 4px",
+      }}
+    >
+      Sign in to sync across devices
+    </a>
+  );
+}
 
 export function ProfilePicker() {
   const pickProfile = useStore((s) => s.pickProfile);
@@ -38,6 +92,7 @@ export function ProfilePicker() {
             </button>
           ))}
         </div>
+        <SyncStatusLine />
       </div>
     </div>
   );

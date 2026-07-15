@@ -57,6 +57,7 @@ interface StoreState {
   setMutedPref: (m: boolean) => void;
   setLargeText: (v: boolean) => void;
   resetProfile: () => void;
+  hydrateFromStorage: () => void;
 }
 
 function commit(p: ProfileId, save: SaveV1): SaveV1 {
@@ -156,5 +157,13 @@ export const useStore = create<StoreState>((set, get) => ({
     const fresh = freshSave();
     setMuted(fresh.muted);
     set({ save: fresh });
+  },
+
+  hydrateFromStorage: () => {
+    const { profile } = get();
+    if (!profile) return;
+    const save = loadSave<SaveV1>(STORAGE_KEY(profile), freshSave());
+    setMuted(save.muted);
+    set({ save });
   },
 }));

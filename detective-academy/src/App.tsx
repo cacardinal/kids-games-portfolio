@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { PROFILES, useStore } from "./state/store";
+import { PROFILES, storageKey, useStore } from "./state/store";
 import { ProfilePicker } from "./screens/ProfilePicker";
 import { CaseBoard } from "./screens/CaseBoard";
 import { CaseView } from "./screens/CaseView";
@@ -25,6 +25,20 @@ export function App() {
   useEffect(() => {
     ensurePaperGrain();
   }, []);
+
+  // Story email-sync/03 — live re-hydration. When the external sync engine rewrites THIS
+  // profile's save while the game is open, reload it through the store's own load path.
+  // window.kgSync is absent in local dev, so this event simply never fires.
+  const hydrateActiveProfile = useStore((s) => s.hydrateActiveProfile);
+  useEffect(() => {
+    function onSyncUpdate(e: Event) {
+      const key = (e as CustomEvent<{ key?: string }>).detail?.key;
+      const id = useStore.getState().profileId;
+      if (id && key === storageKey(id)) hydrateActiveProfile();
+    }
+    window.addEventListener("kg-sync:updated", onSyncUpdate);
+    return () => window.removeEventListener("kg-sync:updated", onSyncUpdate);
+  }, [hydrateActiveProfile]);
 
   // apply per-profile text size to <html>
   const textSize = save?.settings.textSize ?? "standard";

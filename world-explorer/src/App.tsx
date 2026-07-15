@@ -15,6 +15,7 @@ export default function App() {
   const profile = useStore((s) => s.profile);
   const view = useStore((s) => s.view);
   const largeText = useStore((s) => s.save.largeText);
+  const hydrateFromStorage = useStore((s) => s.hydrateFromStorage);
 
   // OS reduced-motion → :root[data-reduced] (set-pieces collapse in CSS).
   useEffect(() => installReducedMotionFlag(), []);
@@ -30,6 +31,21 @@ export default function App() {
   }, [view]);
 
   const activeKey = profile ? `kg.world-explorer.v1.${profile}` : null;
+
+  // Story 01 kgSync: if a cloud pull rewrote THIS profile's save key while the game
+  // is open, reload it via the store's normal load path. No-op if the event never fires
+  // (e.g. window.kgSync undefined in local dev).
+  useEffect(() => {
+    if (!profile) return;
+    const key = `kg.world-explorer.v1.${profile}`;
+    const onUpdate = (e: Event) => {
+      if ((e as CustomEvent<{ key?: string }>).detail?.key === key) {
+        hydrateFromStorage();
+      }
+    };
+    window.addEventListener("kg-sync:updated", onUpdate);
+    return () => window.removeEventListener("kg-sync:updated", onUpdate);
+  }, [profile, hydrateFromStorage]);
 
   return (
     <ErrorBoundary activeKey={activeKey}>

@@ -3,6 +3,31 @@ import { loadSave } from "../lib/storage";
 import { freshSave, type ProfileSave } from "../state/types";
 import { rankForXp } from "../game/progression";
 import { sfx } from "../lib/sfx";
+import { getKgSync, useSyncUser } from "../lib/sync";
+
+// Story email-sync/03 — quiet "sync on" cue. Hidden entirely when the sync module is
+// absent (local dev). The launcher (../) owns the sign-in form; we only link to it.
+function SyncLine() {
+  const user = useSyncUser();
+  if (user === undefined) return null;
+  return (
+    <p className="profilepick__sync meta">
+      {user ? (
+        <>
+          Synced as {user.email}
+          {" · "}
+          <button type="button" className="linkbtn" onClick={() => getKgSync()?.signOut()}>
+            Sign out
+          </button>
+        </>
+      ) : (
+        <a className="linkbtn" href="../">
+          Sign in to sync across devices
+        </a>
+      )}
+    </p>
+  );
+}
 
 // "Who's playing?" — three monogram discs (GDD §5.8). Sub-line shows rank or "New detective".
 function peekRank(id: string): string {
@@ -42,6 +67,7 @@ export function ProfilePicker() {
       <p className="profilepick__foot meta">
         Three desks. Pick yours — your cases and badges are kept on your own desk.
       </p>
+      <SyncLine />
     </div>
   );
 }
