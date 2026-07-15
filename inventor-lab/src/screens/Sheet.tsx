@@ -116,6 +116,28 @@ function PartBody({ part, pen }: { part: PartKind; pen: string }) {
   }
 }
 
+// 3D-mode input twin of PartShape: an INVISIBLE hit area at the exact 2D world coords of the
+// placed part, so drag/select behave identically while the visible mesh is drawn by the 3D bench
+// underneath. (The off-axis camera projects the physics plane 1:1, so hit area and mesh align.)
+// The selection halo still renders here — it is UI chrome, not part of the 3D scene.
+export function PartHitArea({ p, selected }: { p: Placement; selected?: boolean }) {
+  return (
+    <g transform={partTransform(p)} data-part={p.part}>
+      {p.part === "ramp" ? (
+        <polygon points={RAMP_PTS} fill="transparent" stroke="none" />
+      ) : (
+        <HitRect part={p.part} />
+      )}
+      {selected && <SelectionHalo part={p.part} />}
+    </g>
+  );
+}
+
+function HitRect({ part }: { part: PartKind }) {
+  const { w, h } = partSize(part);
+  return <rect x={-w / 2} y={-h / 2} width={w} height={h} fill="transparent" stroke="none" />;
+}
+
 function SelectionHalo({ part }: { part: PartKind }) {
   const { w, h } = partSize(part);
   return (

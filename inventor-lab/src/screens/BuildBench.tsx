@@ -13,8 +13,10 @@ import type { Placement, PartKind, Actor } from "../game/types";
 import { SimRuntime, type RunOutcome, type DustBurst } from "../game/runtime";
 import type { SimHandle } from "../game/sim";
 import {
-  TerrainShape, GoalZone, PartShape, ActorShape, Ghost, PathTrace, Flag,
+  TerrainShape, GoalZone, PartShape, PartHitArea, ActorShape, Ghost, PathTrace, Flag,
 } from "./Sheet";
+import { isWebGLAvailable } from "../components/bench3d/webgl";
+import { Bench3D } from "../components/bench3d/Bench3D";
 import { failureLine, successFooter, rejectLabel } from "../data/copy";
 import { newlyEarnedBadges, badgeToast } from "../data/cosmetics";
 
@@ -432,6 +434,16 @@ export function BuildBench() {
 
   const goalSolved = phase === "success";
 
+  // 3D bench view (matter-js stays the only physics truth — this is a synced view). When WebGL
+  // is unavailable the original flat SVG rendering below is used unchanged.
+  const use3d = useMemo(() => isWebGLAvailable(), []);
+
+  // Placements as DISPLAYED: the part being dragged renders at its live ghost position. Shared
+  // by the 3D meshes and the SVG layer so both follow the drag identically.
+  const displayPlacements: Placement[] = placements.map((p, i) =>
+    drag?.index === i && drag.moved ? { ...p, x: drag.ghost.x, y: drag.ghost.y } : p,
+  );
+
   return (
     <div className="col" style={{ minHeight: "100%", maxWidth: 1240, margin: "0 auto", width: "100%", padding: "14px 18px 28px" }}>
       {/* Top bar */}
@@ -485,11 +497,21 @@ export function BuildBench() {
         {/* The drawing sheet */}
         <div className="grow" style={{ minWidth: 320, position: "relative" }}>
           <div className={`sheet-wrap${running ? " engaged" : ""}`} style={{ position: "relative" }}>
+            {/* 3D workshop view — sits UNDER the SVG, which becomes a transparent input/overlay layer */}
+            {use3d && (
+              <Bench3D
+                level={level}
+                placements={displayPlacements}
+                live={live}
+                solved={goalSolved}
+                dust={dust}
+              />
+            )}
             <svg
               ref={svgRef}
               viewBox="0 0 1280 720"
               className="sheet no-select"
-              style={{ width: "100%", height: "auto", display: "block", touchAction: "none", borderRadius: 10, cursor: running ? "pointer" : undefined }}
+              style={{ width: "100%", height: "auto", display: "block", touchAction: "none", borderRadius: 10, cursor: running ? "pointer" : undefined, position: "relative", zIndex: 1, background: use3d ? "transparent" : undefined }}
               onPointerMove={(e) => { onSheetPointerMove(e); onPartPointerMove(e); }}
               onPointerDown={(e) => { if (running) { skipRun(); return; } onSheetPointerDown(e); }}
               onPointerUp={onPartPointerUp}
@@ -499,16 +521,19 @@ export function BuildBench() {
               <rect x={4} y={4} width={1272} height={712} rx={8} fill="none" stroke="rgba(232,241,255,0.18)" strokeWidth={1.5} />
               <DimensionArrow level={level} />
 
-              {level.terrain.map((t, i) => <TerrainShape key={`t${i}`} t={t} />)}
+              {/* terrain is drawn by the 3D bench in 3D mode; the flat shapes remain the fallback */}
+              {!use3d && level.terrain.map((t, i) => <TerrainShape key={`t${i}`} t={t} />)}
               <GoalZone goal={level.goal} solved={goalSolved} />
 
               {/* failure path trace (faint, one edit cycle) */}
               {showTrace && <PathTrace points={trace} pen={pen} />}
 
-              {/* placed parts — draggable (FIX 1). The part being dragged renders at its live ghost. */}
-              {placements.map((p, i) => {
+              {/* placed parts — draggable (FIX 1). The part being dragged renders at its live ghost.
+                  In 3D mode the visible mesh is drawn by the bench underneath; the SVG keeps an
+                  INVISIBLE hit area (plus the selection halo) at the same 2D world coords, so
+                  drag/select/snap behave exactly as before. */}
+              {displayPlacements.map((shown, i) => {
                 const isDragging = drag?.index === i && drag.moved;
-                const shown: Placement = isDragging ? { ...p, x: drag!.ghost.x, y: drag!.ghost.y } : p;
                 return (
                   <g
                     key={`p${i}`}
@@ -517,13 +542,15 @@ export function BuildBench() {
                     onPointerUp={onPartPointerUp}
                     style={{ cursor: editing && !armed ? (isDragging ? "grabbing" : "grab") : "default", opacity: isDragging ? 0.85 : 1 }}
                   >
-                    <PartShape p={shown} pen={pen} selected={selected === i || isDragging} />
+                    {use3d
+                      ? <PartHitArea p={shown} selected={selected === i || isDragging} />
+                      : <PartShape p={shown} pen={pen} selected={selected === i || isDragging} />}
                   </g>
                 );
               })}
 
-              {/* actors */}
-              {level.actors.map((a, i) => {
+              {/* actors (3D mode renders them as meshes synced to the matter bodies) */}
+              {!use3d && level.actors.map((a, i) => {
                 const { pos, angle } = actorPos(a, i);
                 return <ActorShape key={`a${i}`} actor={a} pos={pos} angle={angle} hero={a.hero} />;
               })}
@@ -531,8 +558,8 @@ export function BuildBench() {
               {/* ghost (arming a new part) */}
               {ghostPlacement && <Ghost p={ghostPlacement} valid={ghostValid} />}
 
-              {/* FIX 7 — impact chalk-dust bursts */}
-              {dust.map((d) => <DustBurstShape key={d.id} x={d.x} y={d.y} intensity={d.intensity} />)}
+              {/* FIX 7 — impact chalk-dust bursts (3D mode renders these as dust/sparks in-scene) */}
+              {!use3d && dust.map((d) => <DustBurstShape key={d.id} x={d.x} y={d.y} intensity={d.intensity} />)}
 
               {/* FIX 6 — transient "rejected here" cues at the attempted location */}
               {rejectCues.map((c) => <RejectCueShape key={c.id} x={c.x} y={c.y} label={c.label} />)}
