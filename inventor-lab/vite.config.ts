@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "./", // relative asset paths — the portfolio is served from arbitrary subpaths
   plugins: [react()],
   server: { port: 5185, strictPort: true, host: true }, // 5185 per PLAN.md — binding
   test: {

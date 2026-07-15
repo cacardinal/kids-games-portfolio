@@ -6,13 +6,15 @@ import type { Region } from "../data/types";
 import { missionsForRegion, MISSION_BY_ID } from "../data/missions";
 import { LANDMARK_BY_ID } from "../data/landmarks";
 import { ROUTE_BY_ID } from "../data/routes";
-import { COUNTRY_BY_ISO3 } from "../data/countries";
+import { COUNTRIES, COUNTRY_BY_ISO3 } from "../data/countries";
 import {
   isRegionUnlocked,
   missionsNeededToUnlock,
   regionCompletedCount,
 } from "../game/progress";
+import { centroidOf } from "../game/geo";
 import { WorldMap, type CountryVisualState } from "../components/WorldMap";
+import { Globe3D, type GlobeFocus } from "../components/Globe3D";
 import { MissionPass } from "../components/MissionPass";
 import { CompassRose } from "../components/Glyphs";
 import { RegionStamp } from "../components/Stamp";
@@ -23,6 +25,14 @@ import { prefersReducedMotion } from "../lib/motion";
 // the player returns to the Atlas from the passport/log. Tracks the profile that
 // last saw the intro; a new selection re-arms it.
 let introShownFor: string | null = null;
+
+// Where the globe eases to when a region tab is chosen — a framing point per
+// region, mirroring the flat map's continent zoom.
+const REGION_FOCUS: Record<Region, { lon: number; lat: number }> = {
+  americas: { lon: -85, lat: 12 },
+  "europe-africa": { lon: 18, lat: 18 },
+  "asia-oceania": { lon: 110, lat: 8 },
+};
 
 export function Atlas() {
   const save = useStore((s) => s.save);
@@ -99,6 +109,33 @@ export function Atlas() {
     return { continents: [...continents], padding: 0.18 };
   }, [activeRegion]);
 
+  // 3D globe focus: the active region's framing point, unless the DOM picker
+  // just retargeted a specific country within this region view. Derived, so a
+  // region-tab change immediately wins back the frame.
+  const [pickFocus, setPickFocus] = useState<(GlobeFocus & { region: Region }) | null>(null);
+  const pickCount = useRef(0);
+  const focus: GlobeFocus = useMemo(
+    () =>
+      pickFocus && pickFocus.region === activeRegion
+        ? pickFocus
+        : { ...REGION_FOCUS[activeRegion], key: `r-${activeRegion}` },
+    [pickFocus, activeRegion],
+  );
+
+  // DOM selection path (keyboard + screen readers): picking a featured country
+  // performs the same explore selection a globe tap does, and spins the globe there.
+  const onPickerChange = (iso3: string) => {
+    if (!iso3) return;
+    const country = COUNTRY_BY_ISO3[iso3];
+    if (!country) return;
+    onExplore(iso3, country.name);
+    const [lon, lat] = centroidOf(iso3);
+    pickCount.current += 1;
+    setPickFocus({ lon, lat, key: `c-${iso3}-${pickCount.current}`, region: activeRegion });
+  };
+
+  const reduced = prefersReducedMotion();
+
   return (
     <div className={`atlas${intro ? " is-intro" : ""}`}>
       <header className="topbar">
@@ -122,14 +159,43 @@ export function Atlas() {
 
       <div className="atlas__body">
         <div className="mapwrap">
-          <WorldMap
-            zoom={zoom}
-            states={states}
-            interactive={false}
-            explore
+          <Globe3D
+            visited={visited}
+            selectedIso3={selected?.iso3 || null}
+            focus={focus}
+            active={view === "atlas"}
+            reduced={reduced}
             onExplore={onExplore}
+            fallback={
+              <WorldMap
+                zoom={zoom}
+                states={states}
+                interactive={false}
+                explore
+                onExplore={onExplore}
+              />
+            }
           />
           <div className="mapwrap__linen" aria-hidden="true" />
+          <label className="globe-picker">
+            <span className="globe-picker__label">Explore</span>
+            <select
+              aria-label="Choose a country to explore"
+              value={selected && COUNTRY_BY_ISO3[selected.iso3] ? selected.iso3 : ""}
+              onChange={(e) => onPickerChange(e.target.value)}
+            >
+              <option value="">Choose a country…</option>
+              {REGION_ORDER.map((r) => (
+                <optgroup key={r} label={REGION_LABEL[r]}>
+                  {COUNTRIES.filter((c) => c.region === r).map((c) => (
+                    <option key={c.iso3} value={c.iso3}>
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
           {selected && (
             <ExploreLabel
               iso3={selected.iso3}

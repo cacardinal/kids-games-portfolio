@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { PROFILES, useStore } from "./state/store";
 import { ProfilePicker } from "./screens/ProfilePicker";
 import { CaseBoard } from "./screens/CaseBoard";
@@ -8,6 +8,12 @@ import { SettingsScreen } from "./screens/SettingsScreen";
 import { ToastHost } from "./components/ToastHost";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ensurePaperGrain } from "./lib/grain";
+import { detectWebGL } from "./components/office3d/webgl";
+
+// Code-split: three.js only downloads when WebGL is actually available.
+const OfficeBackdrop = lazy(() =>
+  import("./components/office3d/OfficeBackdrop").then((m) => ({ default: m.OfficeBackdrop })),
+);
 
 export function App() {
   const view = useStore((s) => s.view);
@@ -26,6 +32,20 @@ export function App() {
     document.documentElement.setAttribute("data-textsize", textSize);
   }, [textSize]);
 
+  // 3D office backdrop (story 3d-upgrade/05): behind the DOM UI on the three
+  // play screens; feature-detected — without WebGL the flat .desk look stands.
+  const webglOk = useMemo(() => detectWebGL(), []);
+  const reducedMotion = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      !!window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    [],
+  );
+  const backdropView =
+    view === "board" || view === "case" || view === "result" ? view : null;
+  const show3d = webglOk && backdropView !== null;
+
   // lamp "dip" on failure (GDD §4.11) — transient class on the desk
   const [dip, setDip] = useState(false);
   const lastPulse = useRef(failPulse);
@@ -43,7 +63,12 @@ export function App() {
       activeProfileId={() => profileId}
       profileName={() => PROFILES.find((p) => p.id === profileId)?.name ?? "this profile"}
     >
-      <div className={`desk${dip ? " desk--dip" : ""}`}>
+      <div className={`desk${dip ? " desk--dip" : ""}${show3d ? " desk--3d" : ""}`}>
+        {show3d && backdropView && (
+          <Suspense fallback={null}>
+            <OfficeBackdrop view={backdropView} reducedMotion={reducedMotion} />
+          </Suspense>
+        )}
         {view === "profile" && <ProfilePicker />}
         {view === "board" && <CaseBoard />}
         {view === "case" && <CaseView />}

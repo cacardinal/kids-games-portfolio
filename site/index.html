@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <meta name="color-scheme" content="dark" />
+  <title>Game Room</title>
+  <style>
+    :root {
+      --bg:        #0f1216;
+      --bg-2:      #14181e;
+      --surface:   #1b2029;
+      --surface-2: #212734;
+      --line:      #2b323e;
+      --text:      #e8e6e1;
+      --muted:     #9aa3ad;
+      --brass:     #d9a441;
+      --radius:    12px;
+      --tap:       48px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(1200px 600px at 50% -8%, #1a2029 0%, var(--bg) 62%),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+    }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: clamp(28px, 6vw, 64px) clamp(18px, 5vw, 40px) 40px;
+    }
+    header { margin-bottom: clamp(24px, 5vw, 44px); }
+    h1 {
+      font-size: clamp(30px, 6vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0 0 8px;
+    }
+    .tagline {
+      color: var(--muted);
+      font-size: clamp(15px, 2.4vw, 18px);
+      margin: 0;
+      max-width: 60ch;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: clamp(14px, 2.4vw, 20px);
+    }
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 96px;
+      padding: 18px 20px;
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--text);
+      text-decoration: none;
+      transition: transform 140ms ease-out, border-color 140ms ease-out, background 140ms ease-out;
+    }
+    .card:hover, .card:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--brass);
+      background: linear-gradient(180deg, #262d3a, var(--surface-2));
+    }
+    .card:focus-visible {
+      outline: 2px solid var(--brass);
+      outline-offset: 2px;
+    }
+    .card:active { transform: translateY(0); }
+    .icon {
+      width: 60px;
+      height: 60px;
+      flex: 0 0 60px;
+      border-radius: 10px;
+      background: #0d1015;
+      border: 1px solid var(--line);
+      object-fit: cover;
+    }
+    .body { min-width: 0; }
+    .name {
+      font-size: 19px;
+      font-weight: 600;
+      margin: 0 0 3px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0;
+    }
+    footer {
+      margin-top: clamp(28px, 5vw, 44px);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (hover: none) {
+      /* touch devices: keep a clear pressed affordance, no sticky hover */
+      .card:hover { transform: none; border-color: var(--line); background: linear-gradient(180deg, var(--surface-2), var(--surface)); }
+      .card:active { transform: scale(0.99); border-color: var(--brass); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Game Room</h1>
+      <p class="tagline">Five games built for our house. Pick one and play.</p>
+    </header>
+
+    <nav class="grid" aria-label="Games">
+      <a class="card" href="./detective-academy/">
+        <img class="icon" src="./icons/detective-academy.png" alt="" width="60" height="60" />
+        <span class="body">
+          <span class="name">Detective Academy</span>
+          <span class="desc">Work real cases at the bureau and close them by naming the evidence.</span>
+        </span>
+      </a>
+
+      <a class="card" href="./world-explorer/">
+        <img class="icon" src="./icons/world-explorer.png" alt="" width="60" height="60" />
+        <span class="body">
+          <span class="name">World Explorer</span>
+          <span class="desc">Earn passport stamps on atlas expeditions across the real world.</span>
+        </span>
+      </a>
+
+      <a class="card" href="./inventor-lab/">
+        <img class="icon" src="./icons/inventor-lab.png" alt="" width="60" height="60" />
+        <span class="body">
+          <span class="name">Inventor Lab</span>
+          <span class="desc">Build contraptions on a living blueprint, where a failed test is data.</span>
+        </span>
+      </a>
+
+      <a class="card" href="./strategy-kingdom/">
+        <img class="icon" src="./icons/strategy-kingdom.png" alt="" width="60" height="60" />
+        <span class="body">
+          <span class="name">Strategy Kingdom</span>
+          <span class="desc">Rule a kingdom through the seasons with every decision's math laid bare.</span>
+        </span>
+      </a>
+
+      <a class="card" href="./code-quest/">
+        <img class="icon" src="./icons/code-quest.png" alt="" width="60" height="60" />
+        <span class="body">
+          <span class="name">Code Quest</span>
+          <span class="desc">Program a rover from mission control, where finding the bad step is the game.</span>
+        </span>
+      </a>
+    </nav>
+
+    <footer>Five games, no ads.</footer>
+  </main>
+</body>
+</html>

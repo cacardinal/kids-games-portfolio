@@ -1772,3 +1772,139 @@ button {
 .backrow h2 {
   font-size: var(--fs-h2);
 }
+
+/* ============================================================================
+   3D GLOBE  (Atlas centerpiece) — canvas shell, DOM country picker,
+   expedition-complete arc flourish
+   ========================================================================== */
+.globewrap {
+  position: absolute;
+  inset: 0;
+  /* soft deep-space backdrop behind the transparent canvas */
+  background:
+    radial-gradient(120% 90% at 50% 42%, #101a26 0%, #0a0f16 55%, #070b10 100%);
+}
+.globewrap canvas {
+  touch-action: none; /* the globe owns drag gestures */
+  display: block;
+}
+
+/* DOM selection path — keyboard/screen-reader country picker over the map */
+.globe-picker {
+  position: absolute;
+  top: var(--s3);
+  left: var(--s3);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 4px 4px 4px var(--s3);
+  min-height: 44px;
+  border-radius: var(--radius);
+  background: rgba(15, 20, 25, 0.82);
+  border: 1px solid rgba(230, 227, 220, 0.14);
+  backdrop-filter: blur(4px);
+}
+.globe-picker__label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.globe-picker select {
+  min-height: 36px;
+  min-width: 180px;
+  padding: 6px 10px;
+  border-radius: calc(var(--radius) - 2px);
+  background: rgba(34, 48, 60, 0.9);
+  color: var(--text);
+  border: 1px solid rgba(230, 227, 220, 0.18);
+  font: inherit;
+  font-size: 14px;
+}
+.globe-picker select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Expedition-complete arc: Home → region, then the stamp set piece */
+.arc-flourish {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 13, 17, 0.72);
+  animation: arc-fade-in 160ms ease-out both;
+}
+.arc-flourish svg {
+  width: min(92vw, 880px);
+  height: auto;
+}
+.arc-flourish__home {
+  fill: var(--paper);
+  stroke: var(--gold);
+  stroke-width: 2;
+}
+.arc-flourish__dest {
+  fill: var(--gold);
+  opacity: 0;
+  animation: arc-dest-in 220ms ease-out 640ms both;
+}
+.arc-flourish__ping {
+  fill: none;
+  stroke: var(--gold-soft);
+  stroke-width: 2;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: arc-ping 420ms ease-out 700ms both;
+}
+.arc-flourish__path {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 6 6;
+  /* pathLength=100 → draw the arc with a dashoffset sweep */
+  stroke-dashoffset: 0;
+  mask: none;
+}
+.arc-flourish:not(.is-reduced) .arc-flourish__path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: arc-draw 680ms cubic-bezier(0.3, 0.6, 0.35, 1) 80ms forwards;
+}
+.arc-flourish__text {
+  fill: var(--text);
+  font-family: Fraunces, serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+}
+@keyframes arc-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes arc-dest-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes arc-ping {
+  from { opacity: 0.9; transform: scale(1); }
+  to { opacity: 0; transform: scale(3.2); }
+}
+@keyframes arc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* Reduced motion: whole flourish is a ≤200ms fade of the finished arc. */
+.arc-flourish.is-reduced {
+  animation: arc-fade-in 180ms ease-out both;
+}
+.arc-flourish.is-reduced .arc-flourish__dest,
+.arc-flourish.is-reduced .arc-flourish__ping {
+  animation: none;
+  opacity: 1;
+}
+.arc-flourish.is-reduced .arc-flourish__ping {
+  opacity: 0;
+}

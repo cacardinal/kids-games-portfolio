@@ -105,6 +105,33 @@ body {
   padding: var(--s5) var(--s4) 96px;
 }
 
+/* ---------- 3D office backdrop (story 3d-upgrade/05) ---------- */
+/* When the WebGL backdrop is live, the desk's flat gradients step aside
+   (they remain the no-WebGL fallback). The lamp-flicker ::before stays. */
+.desk--3d { background: var(--bg); }
+.backdrop3d {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--bg);
+}
+.backdrop3d canvas { display: block; width: 100%; height: 100%; }
+/* film grain + vignette + darkening scrim over the scene: keeps every DOM
+   text surface >=4.5:1 no matter what the lamp is doing */
+.backdrop3d__fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 100% at 50% 28%, rgba(10, 11, 13, 0.18) 0%, rgba(10, 11, 13, 0.3) 45%, rgba(0, 0, 0, 0.66) 100%);
+}
+.backdrop3d__fx.grain::after { opacity: 0.16; mix-blend-mode: overlay; }
+
+/* full-viewport overlay canvas for the 3D CASE CLOSED slam */
+.stamp3d { position: fixed; inset: 0; z-index: 41; pointer-events: none; }
+.stamp3d canvas { display: block; width: 100%; height: 100%; }
+
 /* ---------- paper grain: a reusable SVG-noise overlay on evidence surfaces ---------- */
 .grain {
   position: relative;
@@ -301,10 +328,12 @@ button { font-family: var(--font-body); cursor: pointer; }
 .board__intro { padding: var(--s4) var(--s5); font-family: var(--font-display); color: var(--paper-ink); }
 
 .board__tier-title { color: var(--brass); font-size: calc(20px * var(--type-scale)); letter-spacing: 0.03em; border-bottom: 1px solid var(--surface-2); padding-bottom: var(--s2); margin-bottom: var(--s4); }
-.foldergrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--s4); }
+/* perspective on the grid so case folders lift and tilt in real 3D (story 3d-upgrade/05) */
+.foldergrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--s4); perspective: 1100px; }
 
-.folder { position: relative; text-align: left; background: linear-gradient(160deg, #2a2620, #211d18); border: 1px solid #3a332a; border-radius: var(--r); padding: 22px var(--s4) var(--s4); min-height: 150px; display: flex; flex-direction: column; gap: 6px; transition: transform 120ms ease-out, border-color 120ms, box-shadow 120ms; box-shadow: 0 4px 14px rgba(0,0,0,0.4); overflow: hidden; }
-.folder:not(:disabled):hover { transform: translateY(-3px); border-color: var(--brass-dim); box-shadow: 0 10px 24px rgba(0,0,0,0.5); }
+.folder { position: relative; text-align: left; background: linear-gradient(160deg, #2a2620, #211d18); border: 1px solid #3a332a; border-radius: var(--r); padding: 22px var(--s4) var(--s4); min-height: 150px; display: flex; flex-direction: column; gap: 6px; transition: transform 120ms ease-out, border-color 120ms, box-shadow 120ms; box-shadow: 0 4px 14px rgba(0,0,0,0.4); overflow: hidden; transform-style: preserve-3d; }
+.folder:not(:disabled):hover { transform: translateY(-4px) rotateX(4deg) rotateY(-1.5deg) translateZ(8px); border-color: var(--brass-dim); box-shadow: 0 12px 26px rgba(0,0,0,0.55); }
+.folder:not(:disabled):active { transform: rotateX(2deg) scale(0.985); transition-duration: 80ms; }
 .folder__tab { position: absolute; top: 0; left: 18px; width: 64px; height: 12px; background: var(--brass-dim); border-radius: 0 0 4px 4px; opacity: 0.8; }
 .folder--closed .folder__tab { background: var(--cleared); }
 .folder--locked { background: linear-gradient(160deg, #1d1a16, #18150f); color: var(--text-dim); cursor: default; box-shadow: none; }
@@ -344,10 +373,10 @@ button { font-family: var(--font-body); cursor: pointer; }
 .briefing__cta { margin-top: var(--s4); color: var(--paper-ink-soft); }
 
 /* clue grid */
-.cluegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s4); }
-.cluecard { padding: var(--s4); transform: rotate(var(--jit, 0deg)); transition: transform 120ms ease-out, box-shadow 120ms; cursor: pointer; }
-.cluecard:hover { transform: rotate(0deg) translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.45); }
-.cluecard:active { transform: scale(0.98); }
+.cluegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s4); perspective: 1100px; }
+.cluecard { padding: var(--s4); transform: rotate(var(--jit, 0deg)); transition: transform 120ms ease-out, box-shadow 120ms; cursor: pointer; transform-style: preserve-3d; }
+.cluecard:hover { transform: rotate(0deg) translateY(-3px) rotateX(3.5deg) translateZ(10px); box-shadow: 0 14px 28px rgba(0,0,0,0.5); }
+.cluecard:active { transform: rotateX(1.5deg) scale(0.98); }
 .cluecard--hl { outline: 3px solid var(--brass); outline-offset: 2px; animation: huntPulse 1.4s ease-in-out 2; }
 @keyframes huntPulse { 0%,100% { outline-color: var(--brass); } 50% { outline-color: rgba(217,164,65,0.3); } }
 .cluecard__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin-bottom: var(--s3); }
@@ -359,10 +388,11 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* suspects */
 .suspects__lead { margin-bottom: var(--s4); }
-.suspectgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--s4); align-items: start; }
-.suspect { display: flex; flex-direction: column; gap: var(--s2); }
-.suspectcard { width: 100%; text-align: left; padding: var(--s4); transform: rotate(var(--jit, 0deg)); cursor: pointer; transition: transform 200ms ease-out, filter 240ms; }
-.suspectcard:hover { transform: rotate(0deg) translateY(-2px); }
+.suspectgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--s4); align-items: start; perspective: 1100px; }
+.suspect { display: flex; flex-direction: column; gap: var(--s2); transform-style: preserve-3d; }
+.suspectcard { width: 100%; text-align: left; padding: var(--s4); transform: rotate(var(--jit, 0deg)); cursor: pointer; transition: transform 200ms ease-out, filter 240ms; transform-style: preserve-3d; }
+.suspectcard:hover { transform: rotate(0deg) translateY(-3px) rotateX(3.5deg) rotateY(1deg) translateZ(8px); }
+.suspectcard:active { transform: rotateX(1.5deg) scale(0.985); }
 .suspect--cleared .suspectcard { filter: saturate(0.6) brightness(0.96); transform: rotate(1.5deg); cursor: default; }
 .suspectcard--flip { animation: paperFlip 240ms ease-in-out; }
 @keyframes paperFlip { 0% { transform: rotateY(0); } 50% { transform: rotateY(90deg); } 100% { transform: rotateY(0); } }
@@ -473,6 +503,23 @@ button { font-family: var(--font-body); cursor: pointer; }
 .mote--3 { left: 60%; animation: moteRise 650ms ease-out 340ms forwards; }
 @keyframes moteRise { 0% { transform: translateY(0); opacity: 0; } 30% { opacity: 0.25; } 100% { transform: translateY(-80px); opacity: 0; } }
 .closed-stamp .closed-splat { z-index: 1; }
+
+/* --- 3D slam mode (WebGL + motion): the DOM imprint appears at impact --- */
+/* pre: the canvas tool is still descending; the imprint isn't on the paper yet.
+   Kept in layout (opacity, not display) so the 3D stamp can measure its footprint. */
+.closed-folder--pre .closed-stamp { opacity: 0; }
+.closed-folder--pre .closed-name { opacity: 0; }
+.closed-scene--3d .closed-folder--impact .closed-stamp { animation: inkPress 110ms ease-out; }
+@keyframes inkPress {
+  0% { transform: rotate(-7deg) scale(1.06); filter: brightness(1.15); }
+  100% { transform: rotate(-7deg) scale(1); filter: brightness(1); }
+}
+/* name/underline/dust wait for the slam (impact at ~420ms) */
+.closed-scene--3d .closed-name { animation-delay: 700ms; }
+.closed-scene--3d .closed-underline { animation-delay: 820ms; }
+.closed-scene--3d .mote--1 { animation-delay: 520ms; }
+.closed-scene--3d .mote--2 { animation-delay: 580ms; }
+.closed-scene--3d .mote--3 { animation-delay: 640ms; }
 
 /* reduced motion: collapse the set-piece */
 @media (prefers-reduced-motion: reduce) {
@@ -600,6 +647,29 @@ button { font-family: var(--font-body); cursor: pointer; }
 .result__badges h3 { color: var(--text); margin-bottom: var(--s2); }
 .result__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; border-top: 1px solid var(--surface-2); padding-top: var(--s4); }
 .result__foot-actions { display: flex; gap: var(--s3); }
+
+/* ---------- backdrop scrim chips (story 3d-upgrade/05 — WCAG fix) ----------
+   Dim .meta text that sits DIRECTLY on the 3D office backdrop (no opaque card
+   or panel behind it) gets a deliberate dark noir chip. The lamp cone can push
+   backdrop pixels toward warm brass (~rgb(82,58,28)), where bare #9a988f meta
+   only reaches ~3.7:1. The chip (rgba(17,19,23,0.92), which composites to
+   ~rgb(22,22,23) even over the brightest lamp pixel) restores #9a988f to
+   ~6.4:1 — comfortably past 4.5:1 — and reads as an intentional case-file tag,
+   not a band-aid. Scoped selectors only; the global .meta rule is untouched.
+   Surfaces already on .paper / .xptally / .caseview__panel / .caseview__foot /
+   .folder / .badgechip are opaque and are deliberately excluded. */
+.result__foot > .meta,
+.result__earned.meta,
+.board__who-txt .meta,
+.xpbar__meta.meta,
+.board__badges-empty.meta,
+.caseview__casenum.meta {
+  display: inline-block;
+  background: rgba(17, 19, 23, 0.92);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(217, 164, 65, 0.12);
+}
 
 /* ============================ ERROR FALLBACK ============================ */
 .errorfallback { display: grid; place-items: center; min-height: 80vh; }
