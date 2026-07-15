@@ -8,7 +8,7 @@ import type { TurnReport } from "../game/kingdom";
 import { SCENARIOS, COPY, type BuildingId, type ResearchId } from "../game/content";
 import { turnIndicator, displaySeason } from "../game/display";
 import { ResourceBar, type ResourceKey } from "../components/ResourceBar";
-import { PlotGrid } from "../components/PlotGrid";
+import { KingdomBoard } from "../components/board3d/KingdomBoard";
 import { CrestBanner } from "../components/CrestBanner";
 import { CounselTip, EventCardView, ResearchPanel, ResolutionNote } from "../components/CounselPanel";
 import { LedgerOverlay } from "../components/LedgerOverlay";
@@ -134,7 +134,7 @@ export function ReignScreen() {
       <div className="stack gap12" style={{ minWidth: 0 }}>
         <div className="row gap16" style={{ alignItems: "stretch" }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <PlotGrid
+            <KingdomBoard
               state={reign}
               justBuilt={justBuilt}
               disabled={acting}
