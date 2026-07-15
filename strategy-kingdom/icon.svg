@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Strategy Kingdom app icon: a wax rank-seal pressed on a brass-bordered slate
+       field — the game's signature object. Flat, 3 colors + accents. -->
+  <rect width="512" height="512" rx="96" fill="#171a21"/>
+  <rect x="26" y="26" width="460" height="460" rx="74" fill="none" stroke="#c9a86a" stroke-width="14"/>
+  <!-- candle-warm glow behind the seal -->
+  <circle cx="256" cy="256" r="170" fill="#d9b945" opacity="0.10"/>
+  <!-- scalloped wax rim -->
+  <g>
+    <circle cx="256" cy="256" r="150" fill="#7a2f26"/>
+    <circle cx="256" cy="256" r="150" fill="none" stroke="#5a221b" stroke-width="6"/>
+  </g>
+  <!-- wax body with a soft highlight -->
+  <circle cx="256" cy="256" r="132" fill="#a8463a"/>
+  <ellipse cx="216" cy="214" rx="66" ry="48" fill="#c25b4c" opacity="0.6"/>
+  <!-- embossed crown charge -->
+  <g fill="#f4e8d8">
+    <path d="M168 300l-12-86 46 46 42-62 42 62 46-46-12 86z"/>
+    <rect x="160" y="300" width="192" height="30" rx="8"/>
+    <circle cx="200" cy="214" r="9"/>
+    <circle cx="256" cy="198" r="9"/>
+    <circle cx="312" cy="214" r="9"/>
+  </g>
+</svg>

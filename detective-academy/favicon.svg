@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="lamp" cx="50%" cy="34%" r="60%">
+      <stop offset="0%" stop-color="#26242a"/>
+      <stop offset="100%" stop-color="#14161a"/>
+    </radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0d28a"/>
+      <stop offset="55%" stop-color="#d9a441"/>
+      <stop offset="100%" stop-color="#a8842f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- noir field with a rounded square mask -->
+  <rect width="512" height="512" rx="108" fill="url(#lamp)"/>
+
+  <!-- a manila evidence card, tilted, behind the glass -->
+  <g transform="rotate(-9 256 300)">
+    <rect x="150" y="214" width="212" height="150" rx="10" fill="#efe7d6"/>
+    <rect x="150" y="214" width="212" height="26" rx="10" fill="#d9a441" opacity="0.85"/>
+    <rect x="174" y="266" width="120" height="10" rx="5" fill="#2b2620" opacity="0.32"/>
+    <rect x="174" y="290" width="160" height="10" rx="5" fill="#2b2620" opacity="0.22"/>
+    <rect x="174" y="314" width="96" height="10" rx="5" fill="#2b2620" opacity="0.22"/>
+    <!-- stamp-red CONFIDENTIAL mark (no text, just the ring) -->
+    <circle cx="316" cy="316" r="30" fill="none" stroke="#b3402e" stroke-width="6" opacity="0.7"/>
+  </g>
+
+  <!-- magnifying glass, brass -->
+  <g>
+    <circle cx="214" cy="206" r="92" fill="#14161a" opacity="0.55"/>
+    <circle cx="214" cy="206" r="92" fill="none" stroke="url(#brass)" stroke-width="22"/>
+    <!-- lens glint -->
+    <path d="M168 168 a64 64 0 0 1 52 -26" fill="none" stroke="#fff6e0" stroke-width="10" stroke-linecap="round" opacity="0.5"/>
+    <!-- handle -->
+    <rect x="276" y="268" width="118" height="34" rx="17" fill="url(#brass)" transform="rotate(45 276 268)"/>
+  </g>
+</svg>
