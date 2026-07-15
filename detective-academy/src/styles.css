@@ -648,6 +648,29 @@ button { font-family: var(--font-body); cursor: pointer; }
 .result__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; border-top: 1px solid var(--surface-2); padding-top: var(--s4); }
 .result__foot-actions { display: flex; gap: var(--s3); }
 
+/* ---------- backdrop scrim chips (story 3d-upgrade/05 — WCAG fix) ----------
+   Dim .meta text that sits DIRECTLY on the 3D office backdrop (no opaque card
+   or panel behind it) gets a deliberate dark noir chip. The lamp cone can push
+   backdrop pixels toward warm brass (~rgb(82,58,28)), where bare #9a988f meta
+   only reaches ~3.7:1. The chip (rgba(17,19,23,0.92), which composites to
+   ~rgb(22,22,23) even over the brightest lamp pixel) restores #9a988f to
+   ~6.4:1 — comfortably past 4.5:1 — and reads as an intentional case-file tag,
+   not a band-aid. Scoped selectors only; the global .meta rule is untouched.
+   Surfaces already on .paper / .xptally / .caseview__panel / .caseview__foot /
+   .folder / .badgechip are opaque and are deliberately excluded. */
+.result__foot > .meta,
+.result__earned.meta,
+.board__who-txt .meta,
+.xpbar__meta.meta,
+.board__badges-empty.meta,
+.caseview__casenum.meta {
+  display: inline-block;
+  background: rgba(17, 19, 23, 0.92);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(217, 164, 65, 0.12);
+}
+
 /* ============================ ERROR FALLBACK ============================ */
 .errorfallback { display: grid; place-items: center; min-height: 80vh; }
 .errorfallback__card { padding: var(--s6); max-width: 480px; text-align: center; display: flex; flex-direction: column; gap: var(--s4); align-items: center; }

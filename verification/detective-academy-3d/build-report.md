@@ -51,8 +51,13 @@ atmosphere layer plus one 3D set piece; every reading surface stays 100% DOM.
 ## Acceptance criteria — verified
 
 - [x] Lamplit backdrop (motes + blind slats + lamp cone) behind DOM on board/case/result
-      with gentle pointer parallax; text stays legible (opaque card panels + dark vignette
-      scrim keep contrast ≥4.5:1). See `office-3d.png`, `caseview-3d.png`, `result-3d.png`.
+      with gentle pointer parallax; text stays legible. See `office-3d.png`,
+      `caseview-3d.png`, `result-3d.png`, `board-3d.png`.
+      NOTE: the original claim here — "opaque card panels + dark vignette scrim keep
+      contrast ≥4.5:1" everywhere — was FALSE for the handful of dim `.meta` text nodes
+      that sit DIRECTLY on the backdrop with no opaque panel behind them. Over lamp-lit
+      backdrop pixels the footer meta (#9a988f) measured only 3.67–4.70:1. Fixed — see
+      "Contrast fix" below.
 - [x] Case/clue/suspect cards have CSS-3D lift/tilt on hover + press.
 - [x] Solve plays the 3D stamp slam (skippable) and lands in the same final stamped DOM
       state. See `stamp-slam.png`, `stamp-slam-mid.png`.
@@ -66,11 +71,42 @@ atmosphere layer plus one 3D set piece; every reading surface stays 100% DOM.
 - [x] No convention violations; no private-system, secret, or real-name references in
       the diff or under `verification/`.
 
+## Contrast fix (WCAG follow-up)
+
+The QA gate correctly flagged that dim `.meta` text sitting directly on the 3D office
+backdrop can drop below 4.5:1 where the lamp cone warms the backdrop toward brass
+(~rgb(82,58,28)). Bare #9a988f meta measured 3.67–4.70:1 there — a hard fail.
+
+Fix: dim `.meta` nodes with no opaque/scrimmed parent get a deliberate dark noir chip
+(`background: rgba(17,19,23,0.92); padding: 3px 8px; border-radius: 6px;` + a faint
+brass hairline). New scoped selectors in `src/styles.css`; the global `.meta` rule is
+untouched. The 0.92 alpha composites the chip to ≈rgb(17–22, …) even over the brightest
+lamp pixel, restoring contrast to ~6.3:1.
+
+Nodes chipped (the three flagged + three found in the same sweep):
+- `.result__foot > .meta` — the footer "N of M ranks · X XP total" (the measured failure)
+- `.result__earned.meta` — the earned-bonus summary line (no opaque parent)
+- `.board__who-txt .meta` — header rank name
+- `.xpbar__meta.meta` — XP-bar caption
+- `.board__badges-empty.meta` — the "No badges yet" empty state (shows for a fresh desk)
+- `.caseview__casenum.meta` — the "Case N · Tier N" caption on the case screen
+
+Left alone (already on opaque surfaces): `.paper`, `.xptally`, `.caseview__panel`,
+`.caseview__foot`, `.folder`, `.badgechip`, and the AccuseModal / error-fallback metas.
+Brass headings and `--text` titles on the backdrop measure ~4.70:1+ (large text) and pass.
+
+Measured after fix (real composited pixels sampled from `result-3d.png`, Guest profile,
+lamp brightened on the solve): the footer chip background rendered as **rgb(21,21,22)**
+uniformly, and #9a988f on it computes **6.31:1** — comfortably ≥4.5:1.
+
+Re-verification: `npx vitest run` → 385 passed; `npm run build` → green.
+
 ## Screenshots (this directory)
 
 - `office-3d.png` — CaseBoard with the full-office 3D backdrop.
 - `caseview-3d.png` — CaseView, closer desk crop.
-- `result-3d.png` — Result screen, lamp brightened.
+- `result-3d.png` — Result screen, lamp brightened; footer + earned-bonus scrim chips.
+- `board-3d.png` — CaseBoard with the header rank + XP-bar scrim chips over the lamp cone.
 - `stamp-slam.png` / `stamp-slam-mid.png` — 3D CASE CLOSED set piece.
 - `reduced-motion.png` — static backdrop under `prefers-reduced-motion`.
 - `no-webgl-fallback.png` — flat fallback, fully playable, no canvas.
