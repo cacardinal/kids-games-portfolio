@@ -13,3 +13,18 @@ profiles.local.ts
 
 # Private pre-public history backup — never push
 *.bundle
+
+# Firebase — never commit secrets or emulator/runtime data.
+# (site/firebase-config.js is PUBLIC web config and IS committed.)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+firebase-export-*/
+.emulator-data/
+*serviceAccount*.json
+*service-account*.json
+serviceAccountKey.json
+.env
+.env.*
+.runtimeconfig.json
