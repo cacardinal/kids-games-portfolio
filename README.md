@@ -14,6 +14,10 @@ Launcher: **https://cacardinal.github.io/kids-games-portfolio/**
 
 Served from the `gh-pages` branch (a build artifact). The public build uses the default Player One / Player Two / Guest profiles — real first names live only in each app's gitignored `src/profiles.local.ts` and are quarantined out of the deploy.
 
+**Saving and sync.** Play saves on the device you're using — no account, no sign-up. If you want the same progress on another device, there's an optional family email sign-in on the launcher: enter an email, click the magic link we send, and saves sync across devices. One parent account holds the family; each kid stays a separate profile inside it. Signed out, everything still works and stays on the local device.
+
+**Maintainers:** email sign-in needs a one-time Firebase console toggle (Email link provider) before magic links work in production — see [`AUTH-SETUP.md`](AUTH-SETUP.md).
+
 **Redeploy:** `bash scripts/deploy-pages.sh --publish` (run `bash scripts/deploy-pages.sh` with no flag first for a build + privacy-guard dry run).
 
 ## The apps

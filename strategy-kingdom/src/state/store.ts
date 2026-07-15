@@ -122,10 +122,19 @@ interface StoreState {
   viewCompletedRecap: (s: ScenarioId) => void;
   selectCosmetic: (c: CosmeticId) => void;
   resetProfile: () => void;
+  /** Re-read the active profile's save from localStorage without navigating —
+   * used to pick up a cloud sync pull that lands while the game is open. */
+  hydrateFromStorage: () => void;
 }
 
 function loadProfile(p: ProfileId): ProfileSave {
   return loadSave<ProfileSave>(keyFor(p), freshSave());
+}
+
+/** Exposes the storage key for a profile so callers (e.g. App's sync listener)
+ * can match a `kg-sync:updated` event's key without duplicating the prefix. */
+export function profileStorageKey(p: ProfileId): string {
+  return keyFor(p);
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -342,6 +351,14 @@ export const useStore = create<StoreState>((set, get) => ({
     const fresh = freshSave();
     setMuted(fresh.muted);
     set({ save: fresh, reign: null, view: "throne", lastScore: null, lastUnlocks: null });
+  },
+
+  hydrateFromStorage: () => {
+    const { profile } = get();
+    if (!profile) return;
+    const save = loadProfile(profile);
+    setMuted(save.muted);
+    set({ save, reign: save.activeReign });
   },
 }));
 

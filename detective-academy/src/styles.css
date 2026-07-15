@@ -310,6 +310,24 @@ button { font-family: var(--font-body); cursor: pointer; }
 .disccard__name { font-size: calc(22px * var(--type-scale)); color: var(--text); }
 .disccard__rank { color: var(--brass); }
 .profilepick__foot { max-width: 42ch; }
+/* Story email-sync/03 — quiet sync affordance. Matches the picker's muted register;
+   the action reads in brass (>=7:1 on --bg) with a 44px tap target + inherited focus ring. */
+.profilepick__sync { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; }
+.linkbtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--brass);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.linkbtn:hover { color: var(--text); }
 
 /* ============================ BOARD ============================ */
 .board { display: flex; flex-direction: column; gap: var(--s5); }

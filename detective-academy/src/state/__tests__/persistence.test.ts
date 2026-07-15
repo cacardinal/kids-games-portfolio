@@ -184,6 +184,44 @@ describe("Fix 5 — mid-case persistence (reload restores the working case exact
     expect(useStore.getState().session).toBeNull();
   });
 
+  // Story email-sync/03 — hydrateActiveProfile reloads the active profile's save through
+  // the store's existing load path when the cloud sync engine rewrites its localStorage key
+  // while the game is open, WITHOUT yanking an in-progress case.
+  it("hydrateActiveProfile reloads the save from storage but leaves the active case untouched", () => {
+    const s = useStore.getState();
+    s.selectProfile("guest");
+    s.openCase(1);
+
+    // The player is mid-case; capture the live case/session so we can prove it survives.
+    const caseBefore = useStore.getState().activeCase;
+    const sessionBefore = useStore.getState().session;
+    expect(caseBefore).not.toBeNull();
+    expect(sessionBefore).not.toBeNull();
+    expect(useStore.getState().save!.xp).toBe(0);
+
+    // Simulate a cloud pull: the sync engine writes new data straight into this profile's
+    // key (higher XP earned on another device), then fires the event the App listens for.
+    const synced = { ...JSON.parse(mem.getItem(KEY)!), xp: 250 };
+    mem.setItem(KEY, JSON.stringify(synced));
+
+    useStore.getState().hydrateActiveProfile();
+
+    // Save is refreshed from storage via loadProfile (the existing path)...
+    expect(useStore.getState().save!.xp).toBe(250);
+    // ...and the in-progress case + session are NOT disturbed.
+    expect(useStore.getState().activeCase).toBe(caseBefore);
+    expect(useStore.getState().session).toBe(sessionBefore);
+    expect(useStore.getState().view).toBe("case");
+  });
+
+  it("hydrateActiveProfile is a no-op on the picker (no active profile)", () => {
+    // Fresh reload state: profileId is null.
+    expect(useStore.getState().profileId).toBeNull();
+    useStore.getState().hydrateActiveProfile();
+    expect(useStore.getState().save).toBeNull();
+    expect(useStore.getState().view).toBe("profile");
+  });
+
   it("closing a case correctly clears the in-progress session (reload -> board)", () => {
     const s = useStore.getState();
     s.selectProfile("guest");

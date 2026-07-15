@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useStore } from "./state/store";
+import { useStore, APP_KEY } from "./state/store";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProfilePick } from "./screens/ProfilePick";
 import { Missions } from "./screens/Missions";
@@ -17,6 +17,18 @@ export function App() {
   useEffect(() => {
     document.documentElement.style.setProperty("--pen", pen);
   }, [pen]);
+
+  // When the external sync module rewrites the ACTIVE profile's key mid-session, re-read its save
+  // via the store's existing load path. No-op when kgSync is absent (event never fires).
+  useEffect(() => {
+    const onSync = (e: Event) => {
+      const key = (e as CustomEvent<{ key?: string }>).detail?.key;
+      const s = useStore.getState();
+      if (s.profile && key === APP_KEY(s.profile)) s.hydrateActive();
+    };
+    window.addEventListener("kg-sync:updated", onSync);
+    return () => window.removeEventListener("kg-sync:updated", onSync);
+  }, []);
 
   return (
     <ErrorBoundary>
