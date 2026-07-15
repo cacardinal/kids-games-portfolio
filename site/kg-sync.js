@@ -356,5 +356,20 @@ export function installKgSync(opts = {}) {
 
 // Auto-install for a real browser (never in the Node test — no global window there).
 if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-  installKgSync();
+  // Localhost/127.0.0.1 (exact hostname match only — no substring/endsWith/NODE_ENV/port
+  // checks) connects to the local Firebase emulator (ports pinned in firebase.json:
+  // auth 9099, firestore 8099). Every other hostname, including production
+  // (cacardinal.github.io) and any LAN IP, is untouched and talks to real Firebase.
+  const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1'];
+  if (LOCAL_HOSTNAMES.includes(window.location.hostname)) {
+    installKgSync({
+      emulator: {
+        authUrl: 'http://localhost:9099',
+        firestoreHost: 'localhost',
+        firestorePort: 8099,
+      },
+    });
+  } else {
+    installKgSync();
+  }
 }
