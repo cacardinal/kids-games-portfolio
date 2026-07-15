@@ -90,10 +90,51 @@ function makeLoadModules(spyState) {
   });
 }
 
-function makeContext({ appName, url = 'https://example.com/app/', debounceMs = 40, spyState }) {
+// A storage shim that mimics a REAL browser Storage object's "legacy platform object"
+// behavior: any property write — plain assignment OR Object.defineProperty — is coerced
+// into a persisted STRING-valued entry, indistinguishable from one written via
+// setItem(). This is exactly what live-browser QA proved: the (now-removed) old code's
+// `Object.defineProperty(storage, '__kgSyncPatched', {value:true,...})` did not create a
+// non-enumerable JS property on a real Storage; it created `getItem('__kgSyncPatched')
+// === 'true'`, and the captured "original setter" marker persisted as a STRINGIFIED
+// function, so the next install handed rawSet a string instead of a callable.
+function makeRealishStorage() {
+  const map = new Map();
+  const own = {
+    getItem(k) { return map.has(String(k)) ? map.get(String(k)) : null; },
+    setItem(k, v) { map.set(String(k), String(v)); },
+    removeItem(k) { map.delete(String(k)); },
+    clear() { map.clear(); },
+    key(i) { return [...map.keys()][i] ?? null; },
+    get length() { return map.size; },
+  };
+  const ownNames = new Set(['getItem', 'setItem', 'removeItem', 'clear', 'key', 'length']);
+  return new Proxy(own, {
+    get(t, prop) {
+      if (typeof prop === 'symbol' || ownNames.has(prop)) return t[prop];
+      return map.has(String(prop)) ? map.get(String(prop)) : undefined;
+    },
+    set(t, prop, value) {
+      if (typeof prop === 'symbol' || ownNames.has(prop)) { t[prop] = value; return true; }
+      map.set(String(prop), String(value)); // coerced to a persisted string entry
+      return true;
+    },
+    defineProperty(t, prop, desc) {
+      if (typeof prop === 'symbol' || ownNames.has(prop)) return Reflect.defineProperty(t, prop, desc);
+      map.set(String(prop), String(desc.value)); // same coercion a real Storage applies
+      return true;
+    },
+    has(t, prop) {
+      if (typeof prop === 'symbol' || ownNames.has(prop)) return true;
+      return map.has(String(prop));
+    },
+  });
+}
+
+function makeContext({ appName, url = 'https://example.com/app/', debounceMs = 40, spyState, storage: storageOverride }) {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', { url });
   const win = dom.window;
-  const storage = makeStorage();
+  const storage = storageOverride ?? makeStorage();
   const events = [];
   win.addEventListener('kg-sync:updated', (e) => events.push(e.detail && e.detail.key));
   const api = installKgSync({
@@ -214,6 +255,45 @@ async function main() {
   C.api.ready.then(() => { cReady = true; });
   await delay(0);
   check(cReady === true, 'ready resolved while signed out');
+
+  // ---- Test 4: patch-once guard never persists storage markers (real-Storage regression) ----
+  // Pins the fix: installKgSync must use a module-level WeakMap for the patch-once guard,
+  // never in-storage markers. On a shim whose property writes coerce into persisted string
+  // entries (matching a real browser Storage), the OLD marker-based guard would eventually
+  // read a stringified "original setter" and break rawSet; the WeakMap fix never writes
+  // storage entries for the guard at all, so no __kgSync* keys should ever appear, and a
+  // cloud -> local pull (rawSet) must still land the value.
+  console.log('Test 4: no __kgSync* markers on a real-Storage-like shim; rawSet still works');
+  const EMAIL2 = 'p2-tester@example.com';
+  const KEY2 = 'kg.explorer.v1.p2';
+  const D = makeContext({ appName: 'ctx-d', storage: makeRealishStorage() });
+  const E = makeContext({ appName: 'ctx-e', storage: makeRealishStorage() });
+  await D.api.ready;
+  await E.api.ready;
+
+  function hasMarkerKeys(ctx) {
+    const n = ctx.storage.length;
+    for (let i = 0; i < n; i++) {
+      const k = ctx.storage.key(i);
+      if (typeof k === 'string' && k.startsWith('__kgSync')) return true;
+    }
+    return false;
+  }
+
+  check(!hasMarkerKeys(D), 'D storage has no __kgSync* marker entries right after install');
+  check(!hasMarkerKeys(E), 'E storage has no __kgSync* marker entries right after install');
+
+  await signIn(D, EMAIL2);
+  const valueD = { level: 2, score: 50, tag: 'realish' };
+  D.storage.setItem(KEY2, JSON.stringify(valueD));
+  await D.api.syncNow();
+
+  await signIn(E, EMAIL2);
+  const eRaw = E.storage.getItem(KEY2);
+  check(eRaw != null && deepEqual(JSON.parse(eRaw), valueD),
+    'E localStorage equals what D wrote, on the real-Storage-like shim (rawSet works)');
+  check(!hasMarkerKeys(D), 'D storage still has no __kgSync* marker entries after a sync round-trip');
+  check(!hasMarkerKeys(E), 'E storage still has no __kgSync* marker entries after a sync round-trip');
 
   if (failures > 0) {
     console.error(`\n${failures} check(s) FAILED`);

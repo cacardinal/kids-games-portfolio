@@ -17,6 +17,17 @@ import { firebaseConfig } from './firebase-config.js';
 const PENDING_EMAIL_KEY = 'kg.sync.pendingEmail';
 const META_KEY = 'kg.sync.meta';
 
+// Patch-once guard, keyed by storage object identity — module-level, NOT stored on the
+// storage object itself. A real browser Storage coerces any property/defineProperty
+// assignment into a persisted STRING entry, so a marker like `storage.__kgSyncPatched`
+// survives across page loads as `"true"` and `storage.__kgSyncOriginalSetItem` survives
+// as the STRINGIFIED function — reading it back on the next load hands `rawSet` a
+// string instead of a callable, breaking every local write (cloud-wins pulls silently
+// no-op). A WeakMap is per-JS-context: fresh on every real page load (so the first
+// install always captures the real native setter) while still de-duping multiple
+// installs within the SAME page.
+const KG_STORAGE_ORIGINAL = new WeakMap(); // storage -> original bound setItem
+
 // A kg.* save key we mirror. kg.sync.* keys are engine-internal and NEVER synced.
 function isSyncKey(key) {
   return typeof key === 'string' && key.startsWith('kg.') && !key.startsWith('kg.sync.');
@@ -80,21 +91,11 @@ export function installKgSync(opts = {}) {
   // The wrapper ALWAYS calls the original first, then dirties matching keys. Capturing
   // is a harmless no-op beyond the original setter when signed out / Firebase absent.
   let originalSetItem;
-  if (storage.__kgSyncPatched) {
-    originalSetItem = storage.__kgSyncOriginalSetItem;
+  if (KG_STORAGE_ORIGINAL.has(storage)) {
+    originalSetItem = KG_STORAGE_ORIGINAL.get(storage);
   } else {
     originalSetItem = storage.setItem.bind(storage);
-    try {
-      Object.defineProperty(storage, '__kgSyncOriginalSetItem', {
-        value: originalSetItem, enumerable: false, writable: false, configurable: true,
-      });
-      Object.defineProperty(storage, '__kgSyncPatched', {
-        value: true, enumerable: false, writable: true, configurable: true,
-      });
-    } catch {
-      storage.__kgSyncOriginalSetItem = originalSetItem;
-      storage.__kgSyncPatched = true;
-    }
+    KG_STORAGE_ORIGINAL.set(storage, originalSetItem);
     storage.setItem = function (key, value) {
       originalSetItem(key, value); // games must never break
       try {
