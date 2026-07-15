@@ -10,6 +10,7 @@ import { classifyHeat, isWarmHalf, HEAT_COPY, continentOf, needsContinentZoom } 
 import { compareWinner, formatMetric, comparativeWord } from "../game/compare";
 import { WorldMap, type CountryVisualState, type ZoomTarget } from "../components/WorldMap";
 import { StampSetPiece } from "../components/StampSetPiece";
+import { ArcFlourish } from "../components/ArcFlourish";
 import { SpeakButton } from "../components/SpeakButton";
 import { LandmarkSilhouette } from "../components/Silhouettes";
 import { CountryShape } from "../components/CountryShape";
@@ -39,6 +40,8 @@ function MissionRunner({ mission }: { mission: MissionT }) {
   const existing = useStore((s) => s.save.missions[mission.id]);
 
   const [stampOpen, setStampOpen] = useState(false);
+  // 3D-upgrade: the travel-arc flourish plays between completion and the stamp.
+  const [arcOpen, setArcOpen] = useState(false);
   const [earnedStar, setEarnedStar] = useState(false);
   // Fix 3: bumping this key remounts the mission component → a FULL state reset for
   // the wrong-pick redemption replay (revealed/subline/clean refs all reset fresh).
@@ -47,6 +50,11 @@ function MissionRunner({ mission }: { mission: MissionT }) {
   const finish = (star: boolean) => {
     setEarnedStar(star);
     completeMission(mission.id, star, mission.fact, mission.region);
+    setArcOpen(true);
+  };
+
+  const onArcDone = () => {
+    setArcOpen(false);
     setStampOpen(true);
   };
 
@@ -75,6 +83,8 @@ function MissionRunner({ mission }: { mission: MissionT }) {
       ) : (
         <FindMission mission={mission} onFinish={finish} onClose={closeMission} />
       )}
+
+      {arcOpen && <ArcFlourish region={mission.region} onDone={onArcDone} />}
 
       {stampOpen && (
         <StampSetPiece
