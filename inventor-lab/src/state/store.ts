@@ -50,7 +50,6 @@ interface AppState {
   setProfile: (id: ProfileId) => void;
   clearProfile: () => void; // back to "who's playing"
   resetActiveSave: () => void;
-  hydrateActive: () => void; // re-read the active profile's save (after a live cloud pull)
 
   go: (view: AppState["view"]) => void;
   openLevel: (id: number) => void;
@@ -83,14 +82,6 @@ export const useStore = create<AppState>((set, get) => ({
     set({ profile: id, save, view: "missions" });
   },
   clearProfile: () => set({ profile: null, view: "profile", currentLevel: null }),
-
-  hydrateActive: () => {
-    const { profile } = get();
-    if (!profile) return; // on the picker there's no active save to refresh
-    const save = loadSave<ProfileSave>(APP_KEY(profile), freshSave());
-    setMuted(save.muted);
-    set({ save });
-  },
 
   resetActiveSave: () => {
     const { profile } = get();

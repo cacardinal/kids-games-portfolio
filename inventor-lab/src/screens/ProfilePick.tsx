@@ -1,6 +1,5 @@
 import { useStore, PROFILES } from "../state/store";
 import { sfx } from "../lib/sfx";
-import { SyncBadge } from "../components/SyncBadge";
 
 // "Who's at the bench?" — three monogram discs. The early reader's first win path starts here.
 export function ProfilePick() {
@@ -59,7 +58,6 @@ export function ProfilePick() {
       <p className="label" style={{ maxWidth: 420, textAlign: "center", lineHeight: 1.6 }}>
         Pick a bench. Builds and stars are saved for each engineer.
       </p>
-      <SyncBadge />
     </div>
   );
 }

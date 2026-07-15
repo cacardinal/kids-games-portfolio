@@ -101,38 +101,7 @@ done
 touch "$SITE_DIR/.nojekyll"
 step "wrote _site/.nojekyll"
 
-# kg-sync module + its Firebase config, public-safe artifacts shipped beside the launcher
-[ -f "$ROOT/site/kg-sync.js" ] || die "missing site/kg-sync.js (email-sync module source)"
-[ -f "$ROOT/site/firebase-config.js" ] || die "missing site/firebase-config.js (Firebase web config source)"
-cp "$ROOT/site/kg-sync.js" "$SITE_DIR/kg-sync.js"
-step "root: site/kg-sync.js -> _site/kg-sync.js"
-cp "$ROOT/site/firebase-config.js" "$SITE_DIR/firebase-config.js"
-step "root: site/firebase-config.js -> _site/firebase-config.js"
-
-# inject the sync module include into each built game so games inherit the sign-in session
-log "Injecting kg-sync.js <script> include into each game's index.html"
-for app in "${APPS[@]}"; do
-  html="$SITE_DIR/$app/index.html"
-  [ -f "$html" ] || die "missing $html (build did not produce index.html)"
-  if "$GREP" -q 'kg-sync.js' "$html"; then
-    step "$app: already includes kg-sync.js, skipping"
-    continue
-  fi
-  "$GREP" -q '</body>' "$html" || die "$app/index.html has no </body> to insert before"
-  # Insert before the LAST </body>: perl's greedy (.*) in single-line mode consumes
-  # up to (and backtracks only to) the final </body> match, so this targets the
-  # last occurrence even if the built html somehow contained more than one.
-  perl -0777 -pe 's/(.*)(<\/body>)/$1    <script type="module" src="..\/kg-sync.js"><\/script>\n$2/s' \
-    "$html" > "$html.tmp" || die "$app: kg-sync.js injection failed"
-  mv "$html.tmp" "$html"
-  step "$app: injected kg-sync.js include before </body>"
-done
-
 # ---- HARD-FAIL privacy guards ------------------------------------------------
-# NOTE: site/firebase-config.js carries the PUBLIC Firebase web config (project's
-# apiKey, authDomain, etc.) — a Firebase web apiKey is NOT a secret, it identifies
-# the project, not a credential, and is intentionally shipped in _site. A future
-# secret-sweep should not false-positive on "apiKey" appearing in this file.
 # grep returns 0 on a match; -a keeps it binary-safe so PNGs/sourcemaps are scanned.
 #
 # Names are matched as WHOLE WORDS (\b...\b), not bare substrings. A real leak

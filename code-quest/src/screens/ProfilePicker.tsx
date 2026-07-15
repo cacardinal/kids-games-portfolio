@@ -2,7 +2,6 @@ import { useStore } from "../state/store";
 import { PROFILES } from "../state/save";
 import { STR } from "../data/copy";
 import { sfx } from "../lib/sfx";
-import { SyncStatus } from "./SyncStatus";
 
 export function ProfilePicker() {
   const pickProfile = useStore((s) => s.pickProfile);
@@ -39,7 +38,6 @@ export function ProfilePicker() {
       </div>
 
       <p className="boot-foot">Select an operator to begin. Progress saves automatically.</p>
-      <SyncStatus />
     </div>
   );
 }

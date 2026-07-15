@@ -299,32 +299,6 @@ button {
   color: var(--text-dim);
 }
 
-/* Cross-device sync cue on the profile picker (email-sync). */
-.sync-cue {
-  font-size: var(--fs-meta);
-  color: var(--text-dim);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-  justify-content: center;
-  letter-spacing: 0.04em;
-}
-.sync-cue__action {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 6px;
-  background: none;
-  border: none;
-  color: var(--gold);
-  font-family: var(--body);
-  font-size: var(--fs-meta);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 /* compass-rose mark used on the picker + passport cover */
 .compass {
   color: var(--gold);

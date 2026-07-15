@@ -20,17 +20,6 @@ export default function App() {
     }
   }, [profile]);
 
-  // Re-hydrate the active profile's save when a cloud sync rewrites its storage key.
-  useEffect(() => {
-    const onUpdate = (e: Event) => {
-      const key = (e as CustomEvent<{ key: string }>).detail?.key;
-      const p = useStore.getState().profile;
-      if (p && key === `kg.codequest.v1.${p}`) useStore.getState().hydrateActiveProfile();
-    };
-    window.addEventListener("kg-sync:updated", onUpdate);
-    return () => window.removeEventListener("kg-sync:updated", onUpdate);
-  }, []);
-
   return (
     <ErrorBoundary>
       <div className="app-shell">

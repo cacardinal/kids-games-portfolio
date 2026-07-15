@@ -112,7 +112,6 @@ interface StoreState {
   selectCosmetic: (c: CosmeticId) => void;
   markStepHintSeen: (missionId: number) => void;
   resetProfile: () => void;
-  hydrateActiveProfile: () => void;
 }
 
 function persist(profile: ProfileId | null, save: ProfileSave) {
@@ -581,12 +580,6 @@ export const useStore = create<StoreState>((set, get) => ({
       toast: null,
       patchMinting: null,
     });
-  },
-
-  hydrateActiveProfile: () => {
-    const { profile, save } = get();
-    if (!profile) return;
-    set({ save: loadSave<ProfileSave>(SAVE_KEY(profile), save) });
   },
 }));
 

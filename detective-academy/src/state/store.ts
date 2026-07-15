@@ -45,7 +45,7 @@ function defaultTextSize(id: ProfileId): TextSize {
   return PROFILES.find((p) => p.id === id)?.largeText ? "large" : "standard";
 }
 
-export function storageKey(id: ProfileId): string {
+function storageKey(id: ProfileId): string {
   return `kg.detective.v1.${id}`;
 }
 
@@ -116,7 +116,6 @@ interface StoreState {
 
   // actions
   selectProfile: (id: ProfileId) => void;
-  hydrateActiveProfile: () => void; // reload the active profile's save from storage (sync pull)
   clearProfile: () => void; // back to picker
   setView: (v: View) => void;
   setCaseTab: (t: "briefing" | "evidence" | "suspects") => void;
@@ -204,18 +203,6 @@ export const useStore = create<StoreState>((set, get) => ({
       toasts: [],
     });
   },
-
-  // Story email-sync/03: a cloud pull rewrote this profile's save while the game is open.
-  // Reload it through the SAME load path selectProfile uses (loadProfile -> loadSave), so
-  // the board/settings reflect synced XP, cases, and badges. Leaves the active case view
-  // and its in-progress session untouched (no mid-case yank).
-  hydrateActiveProfile: () =>
-    set((s) => {
-      if (!s.profileId) return {};
-      const save = loadProfile(s.profileId);
-      setMuted(save.settings.muted); // a synced pull may flip the mute flag — keep sfx in lockstep
-      return { save };
-    }),
 
   clearProfile: () =>
     set({
