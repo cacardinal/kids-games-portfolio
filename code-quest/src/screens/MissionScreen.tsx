@@ -3,7 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useStore } from "../state/store";
 import { useRunPlayer } from "../state/useRunPlayer";
 import { missionById } from "../data/missions";
-import { Grid } from "../components/Grid";
+import { MissionBoard3D } from "../components/terrain/MissionBoard3D";
 import { ProgramRail } from "../components/ProgramRail";
 import { Palette } from "../components/Palette";
 import { Controls } from "../components/Controls";
@@ -171,9 +171,10 @@ export function MissionScreen() {
 
       <div className="mission-body">
         <div className="zone-grid">
-          <Grid
+          <MissionBoard3D
             mission={mission}
-            step={currentStep}
+            trace={trace}
+            traceIndex={traceIndex}
             collectedKeys={collectedKeys}
             activatedKeys={activatedKeys}
             pose={pose}
